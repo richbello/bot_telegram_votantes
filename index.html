@@ -50,17 +50,30 @@
         .chat-input button:hover { background: var(--accent-hover); }
 
         /* Right Panel */
-        .panel-card { background: var(--card-bg); border-radius: 16px; padding: 25px; border: 1px solid #243531; }
+        .panel-card { background: var(--card-bg); border-radius: 16px; padding: 25px; border: 1px solid #243531; height: 600px; overflow-y: auto; }
         .tabs { display: flex; gap: 20px; border-bottom: 1px solid #243531; padding-bottom: 10px; margin-bottom: 20px; }
         .tab { background: none; border: none; color: var(--text-muted); font-weight: 600; font-size: 14px; cursor: pointer; padding-bottom: 5px; }
         .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
         
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
         .info-subcard { background: var(--chat-bg); border: 1px solid #243531; border-radius: 12px; padding: 15px; }
         .info-subcard h3 { font-size: 16px; color: var(--accent); margin-bottom: 10px; }
         .info-subcard ul { list-style: none; }
         .info-subcard li { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; position: relative; padding-left: 12px; }
         .info-subcard li::before { content: "•"; color: var(--accent); position: absolute; left: 0; }
+
+        /* DB Table */
+        .db-table-container { overflow-x: auto; max-height: 450px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
+        th, td { padding: 10px; border-bottom: 1px solid #243531; }
+        th { background: var(--chat-bg); color: var(--accent); position: sticky; top: 0; }
+        tr:hover { background: var(--msg-bg); }
+
+        .cedula-chip { background: var(--msg-bg); border: 1px solid var(--accent); color: var(--accent); padding: 5px 10px; border-radius: 6px; display: inline-block; margin: 4px; cursor: pointer; font-size: 12px; }
+        .cedula-chip:hover { background: var(--accent); color: #000; }
     </style>
 </head>
 <body>
@@ -114,51 +127,122 @@
     <!-- Right Information Panel -->
     <div class="panel-card">
         <div class="tabs">
-            <button class="tab active">C&oacute;mo funciona</button>
-            <button class="tab">Probar</button>
-            <button class="tab">Base de datos</button>
-            <button class="tab">Auditor&iacute;a</button>
+            <button class="tab active" onclick="switchTab('como-funciona', this)">C&oacute;mo funciona</button>
+            <button class="tab" onclick="switchTab('probar', this)">Probar</button>
+            <button class="tab" onclick="switchTab('base-datos', this)">Base de datos</button>
+            <button class="tab" onclick="switchTab('auditoria', this)">Auditor&iacute;a</button>
         </div>
 
-        <div class="cards-grid">
-            <div class="info-subcard">
-                <h3>Ciudadano</h3>
-                <ul>
-                    <li>Consulta solo su propia c&eacute;dula.</li>
-                    <li>Ve puesto, mesa, direcci&oacute;n, ciudad y barrio.</li>
-                    <li>Acceso directo al mapa en Google Maps.</li>
-                    <li>Aceptaci&oacute;n previa de pol&iacute;tica de datos.</li>
-                </ul>
+        <!-- TAB 1: COMO FUNCIONA -->
+        <div id="como-funciona" class="tab-content active">
+            <div class="cards-grid">
+                <div class="info-subcard">
+                    <h3>Ciudadano</h3>
+                    <ul>
+                        <li>Consulta solo su propia c&eacute;dula.</li>
+                        <li>Ve puesto, mesa, direcci&oacute;n, ciudad y barrio.</li>
+                        <li>Acceso directo al mapa en Google Maps.</li>
+                        <li>Aceptaci&oacute;n previa de pol&iacute;tica de datos.</li>
+                    </ul>
+                </div>
+                <div class="info-subcard">
+                    <h3>L&iacute;der</h3>
+                    <ul>
+                        <li>Ingresa con PIN personal.</li>
+                        <li>Ve datos completos solo de su red de referidos.</li>
+                        <li>Agrupaci&oacute;n por puesto &uacute;til para log&iacute;stica.</li>
+                    </ul>
+                </div>
+                <div class="info-subcard">
+                    <h3>Coordinaci&oacute;n</h3>
+                    <ul>
+                        <li>Acceso a toda la base general.</li>
+                        <li>Resumen de simpatizantes por puesto.</li>
+                        <li>Revisa el registro de auditor&iacute;a.</li>
+                    </ul>
+                </div>
+                <div class="info-subcard" style="grid-column: span 3;">
+                    <h3>Producci&oacute;n</h3>
+                    <ul>
+                        <li>Backend integrado con Telegram Bot API + FastAPI.</li>
+                        <li>Base de datos PostgreSQL.</li>
+                        <li>Carga masiva directa desde archivos Excel de l&iacute;deres.</li>
+                    </ul>
+                </div>
             </div>
-            <div class="info-subcard">
-                <h3>L&iacute;der</h3>
-                <ul>
-                    <li>Ingresa con PIN personal.</li>
-                    <li>Ve datos completos solo de su red de referidos.</li>
-                    <li>Agrupaci&oacute;n por puesto &uacute;til para log&iacute;stica.</li>
-                </ul>
+        </div>
+
+        <!-- TAB 2: PROBAR -->
+        <div id="probar" class="tab-content">
+            <h3 style="color:var(--accent); margin-bottom:10px;">C&eacute;dulas de Prueba (Soacha)</h3>
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px;">Haga clic en cualquiera de las siguientes c&eacute;dulas para probar la consulta automatizada en el chat:</p>
+            <div>
+                <span class="cedula-chip" onclick="probarCedula('2986631')">2986631</span>
+                <span class="cedula-chip" onclick="probarCedula('1073693454')">1073693454</span>
+                <span class="cedula-chip" onclick="probarCedula('1033723563')">1033723563</span>
+                <span class="cedula-chip" onclick="probarCedula('11324571')">11324571</span>
+                <span class="cedula-chip" onclick="probarCedula('1109264322')">1109264322</span>
             </div>
-            <div class="info-subcard">
-                <h3>Coordinaci&oacute;n</h3>
-                <ul>
-                    <li>Acceso a toda la base general.</li>
-                    <li>Resumen de simpatizantes por puesto.</li>
-                    <li>Revisa el registro de auditor&iacute;a.</li>
-                </ul>
+        </div>
+
+        <!-- TAB 3: BASE DE DATOS -->
+        <div id="base-datos" class="tab-content">
+            <h3 style="color:var(--accent); margin-bottom:10px;">Registros de Votantes (Soacha)</h3>
+            <div class="db-table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>C&eacute;dula</th>
+                            <th>Municipio</th>
+                            <th>Puesto</th>
+                            <th>Mesa</th>
+                            <th>Direcci&oacute;n</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>2986631</td><td>SOACHA</td><td>I.E. SOACHA AVANZA LA UNIDAD</td><td>1</td><td>CRA 38 No 14 - 72</td><td>Confirmado</td></tr>
+                        <tr><td>1073693454</td><td>SOACHA</td><td>COLEGIO MINUTO DE DIOS CIUDAD VERDE</td><td>37</td><td>CALLE 38 No 31 141 CIUDAD VERDE</td><td>Confirmado</td></tr>
+                        <tr><td>1033723563</td><td>SOACHA</td><td>I.E. LICEO MAYOR DE SOACHA</td><td>23</td><td>CLL. 38 No. 6 A - 55 ESTE</td><td>Confirmado</td></tr>
+                        <tr><td>11324571</td><td>GIRARDOT</td><td>COLEGIO AMERICANO</td><td>8</td><td>CALLE 21 No. 10-40</td><td>Confirmado</td></tr>
+                        <tr><td>1109264322</td><td>SOACHA</td><td>CENTRO COMERCIAL MERCURIO</td><td>31</td><td>CRA 7 NRO 32 35</td><td>Confirmado</td></tr>
+                    </tbody>
+                </table>
             </div>
-            <div class="info-subcard" style="grid-column: span 3;">
-                <h3>Producci&oacute;n</h3>
-                <ul>
-                    <li>Backend integrado con Telegram Bot API + FastAPI.</li>
-                    <li>Base de datos PostgreSQL.</li>
-                    <li>Carga masiva directa desde archivos Excel de l&iacute;deres.</li>
-                </ul>
+        </div>
+
+        <!-- TAB 4: AUDITORIA -->
+        <div id="auditoria" class="tab-content">
+            <h3 style="color:var(--accent); margin-bottom:10px;">Registro de Auditor&iacute;a (Ley 1581)</h3>
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px;">Cada consulta queda registrada en la base de datos para demostrar el uso leg&iacute;timo de la informaci&oacute;n:</p>
+            <div class="db-table-container">
+                <table id="auditTable">
+                    <thead>
+                        <tr>
+                            <th>Fecha/Hora</th>
+                            <th>Perfil</th>
+                            <th>C&eacute;dula Consultada</th>
+                            <th>Resultado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>21/10/2026 01:17 p. m.</td><td>Ciudadano</td><td>2986631</td><td>Exitosa</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+    function switchTab(tabId, element) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        element.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+    }
+
     function sendMessage() {
         const input = document.getElementById('userInput');
         const text = input.value.trim();
@@ -170,10 +254,24 @@
         setTimeout(() => {
             if (/^\d+$/.test(text)) {
                 addMessage("&#128269; Buscando en la base de datos de Soacha...\n\n&#128205; *Puesto Encontrado*\n&bull; C&eacute;dula: " + text + "\n&bull; Puesto: COLEGIO MINUTO DE DIOS CIUDAD VERDE\n&bull; Mesa: 37\n&bull; Direcci&oacute;n: CALLE 38 No 31 141\n&bull; Municipio: SOACHA\n\n&#128506;&#65039; https://www.google.com/maps?q=4.606188,-74.213060", 'bot');
+                registrarAuditoria(text, "Exitosa");
             } else {
                 addMessage("Por favor ingrese su n&uacute;mero de C&eacute;dula sin puntos ni espacios.", 'bot');
             }
         }, 600);
+    }
+
+    function probarCedula(cedula) {
+        document.getElementById('userInput').value = cedula;
+        sendMessage();
+    }
+
+    function registrarAuditoria(cedula, resultado) {
+        const tbody = document.querySelector('#auditTable tbody');
+        const tr = document.createElement('tr');
+        const now = new Date().toLocaleString();
+        tr.innerHTML = <td></td><td>Ciudadano</td><td></td><td></td>;
+        tbody.prepend(tr);
     }
 
     function seleccionarOpcion(opcion) {
