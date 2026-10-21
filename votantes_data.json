@@ -1,0 +1,802 @@
+{
+  "2986631": {
+    "puesto": "I.E. SOACHA AVANZA LA UNIDAD",
+    "mesa": 1,
+    "direccion": "CRA 38 No 14 - 72",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.6099953,
+    "longitud": -74.2238673,
+    "estado": "Confirmado"
+  },
+  "1073693454": {
+    "puesto": "COLEGIO MINUTO DE DIOS CIUDAD VERDE",
+    "mesa": 37,
+    "direccion": "CALLE 38 No 31 141 CIUDAD VERDE",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.6061877,
+    "longitud": -74.2130596,
+    "estado": "Confirmado"
+  },
+  "1033723563": {
+    "puesto": "I.E. LICEO MAYOR DE SOACHA",
+    "mesa": 23,
+    "direccion": "CLL. 38 No. 6 A - 55 ESTE",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.58256,
+    "longitud": -74.194387,
+    "estado": "Confirmado"
+  },
+  "11324571": {
+    "puesto": "COLEGIO AMERICANO",
+    "mesa": 8,
+    "direccion": "CALLE 21 No. 10-40",
+    "municipio": "GIRARDOT",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.2988522,
+    "longitud": -74.8044541,
+    "estado": "Confirmado"
+  },
+  "1109264322": {
+    "puesto": "CENTRO COMERCIAL MERCURIO",
+    "mesa": 31,
+    "direccion": "CRA 7 NRO 32 35",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.5881616,
+    "longitud": -74.2035191,
+    "estado": "Confirmado"
+  },
+  "1005663908": {
+    "puesto": "IE SAN JOSE",
+    "mesa": 16,
+    "direccion": "CLL 48 No 30-56 EL EDEN",
+    "municipio": "SINCELEJO",
+    "departamento": "SUCRE",
+    "latitud": 9.2940665,
+    "longitud": -75.3768724,
+    "estado": "Confirmado"
+  },
+  "1073701267": {
+    "puesto": "COLEGIO MILITAR LICEO SOCIAL COMPARTIR",
+    "mesa": 13,
+    "direccion": "CLL 18 SUR NRO 9F 24 COMPARTIR",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.5663852,
+    "longitud": -74.2371026,
+    "estado": "Confirmado"
+  },
+  "1016048445": {
+    "puesto": "COLEGIO MINUTO DE DIOS CIUDAD VERDE",
+    "mesa": 22,
+    "direccion": "CALLE 38 No 31 141 CIUDAD VERDE",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.6061877,
+    "longitud": -74.2130596,
+    "estado": "Confirmado"
+  },
+  "52026319": {
+    "puesto": "NUEVO COLISEO MUNICIPAL",
+    "mesa": 1,
+    "direccion": "CLL 1 No 2-00",
+    "municipio": "MOSQUERA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.7035501,
+    "longitud": -74.2310153,
+    "estado": "Confirmado"
+  },
+  "1007144082": {
+    "puesto": "IE JESUS MARIA ORMAZA",
+    "mesa": 5,
+    "direccion": "CRA 22 BIS # 75 00",
+    "municipio": "PEREIRA",
+    "departamento": "RISARALDA",
+    "latitud": 4.8028213,
+    "longitud": -75.7443219,
+    "estado": "Confirmado"
+  },
+  "1016101357": {
+    "puesto": "ZONA FRANCA",
+    "mesa": 33,
+    "direccion": "CLL 14 A # 108 - 78",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.6714469,
+    "longitud": -74.1559155,
+    "estado": "Confirmado"
+  },
+  "53134432": {
+    "puesto": "I.E. VIDA NUEVA",
+    "mesa": 9,
+    "direccion": "CRA 19 A No 4 - 90 SUR",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.5913261,
+    "longitud": -74.2285761,
+    "estado": "Confirmado"
+  },
+  "1000472492": {
+    "puesto": "GRAN PLAZA EL ENSUEÑO",
+    "mesa": 19,
+    "direccion": "CRA 51 #59 C-93 SUR /CLL 59 SUR #51-21",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.5822363,
+    "longitud": -74.1567545,
+    "estado": "Confirmado"
+  },
+  "1014251052": {
+    "puesto": "LA FLORIDA",
+    "mesa": 13,
+    "direccion": "CRA 89 # 68A-36 CRA 89 # 68A-32",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.6928276,
+    "longitud": -74.1106231,
+    "estado": "Confirmado"
+  },
+  "1012383845": {
+    "puesto": "LA ESTACION",
+    "mesa": 21,
+    "direccion": "CRA 78 ENTRE CLL 60A SUR Y CLL 63 SUR",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.5971912,
+    "longitud": -74.1803664,
+    "estado": "Confirmado"
+  },
+  "1023961353": {
+    "puesto": "I.E. LEON XIII - CHILOE",
+    "mesa": 27,
+    "direccion": "DIAG. 28 No. 28 - 99 CIUDAD VERDE",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.6049633,
+    "longitud": -74.2141603,
+    "estado": "Confirmado"
+  },
+  "1012435510": {
+    "puesto": "CENTRO COMERCIAL VENTURA TERREROS",
+    "mesa": 22,
+    "direccion": "CRA 1 NRO 38 89 SOACHA",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.58846,
+    "longitud": -74.1950408,
+    "estado": "Confirmado"
+  },
+  "1033746591": {
+    "puesto": "SAN CARLOS",
+    "mesa": 25,
+    "direccion": "CRA 19 No 50 A - 37 SUR",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.5697017,
+    "longitud": -74.12794,
+    "estado": "Confirmado"
+  },
+  "1073324433": {
+    "puesto": "COLEGIO MINUTO DE DIOS CIUDAD VERDE",
+    "mesa": 36,
+    "direccion": "CALLE 38 No 31 141 CIUDAD VERDE",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.6061877,
+    "longitud": -74.2130596,
+    "estado": "Confirmado"
+  },
+  "1116020515": {
+    "puesto": "PUESTO CABECERA MUNICIPAL",
+    "mesa": 3,
+    "direccion": "CRA 3A No 1B - 12",
+    "municipio": "LA SALINA",
+    "departamento": "CASANARE",
+    "latitud": 6.1276899,
+    "longitud": -72.3351729,
+    "estado": "Confirmado"
+  },
+  "1012363398": {
+    "puesto": "I.E. LICEO MAYOR DE SOACHA",
+    "mesa": 17,
+    "direccion": "CLL. 38 No. 6 A - 55 ESTE",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.58256,
+    "longitud": -74.194387,
+    "estado": "Confirmado"
+  },
+  "1007503635": {
+    "puesto": "Barcelona - Consulado",
+    "mesa": 34,
+    "direccion": "Seminari Conciliar de Barcelona",
+    "municipio": "ESPAÑA",
+    "departamento": "CONSULADOS",
+    "latitud": 41.3880817,
+    "longitud": 2.1632143,
+    "estado": "Confirmado"
+  },
+  "1022382733": {
+    "puesto": "LAURA HERRERA",
+    "mesa": 3,
+    "direccion": "Carrera 89 B No. 54 F 20 Sur- Bosa Brasil",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.6320538,
+    "longitud": -74.1873575,
+    "estado": "Confirmado"
+  },
+  "1000732786": {
+    "puesto": "I.E. SAN MATEO SEDE A",
+    "mesa": 17,
+    "direccion": "CR. 5 B ESTE No. 26 - 04",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.5791541,
+    "longitud": -74.204448,
+    "estado": "Confirmado"
+  },
+  "1012422621": {
+    "puesto": "COLISEO LEON XIII",
+    "mesa": 17,
+    "direccion": "CLL 48 No 9-05 LEON XIII",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.5950453,
+    "longitud": -74.1940555,
+    "estado": "Confirmado"
+  },
+  "1028480010": {
+    "puesto": "MEDICINA LEGAL",
+    "mesa": 9,
+    "direccion": "KR12 A # 7 - 07",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.5981491,
+    "longitud": -74.0826253,
+    "estado": "Confirmado"
+  },
+  "1022365207": {
+    "puesto": "EL PORTAL",
+    "mesa": 12,
+    "direccion": "CRA 3B. No. 30A - 42 SUR",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.5659317,
+    "longitud": -74.094819,
+    "estado": "Confirmado"
+  },
+  "1023898524": {
+    "puesto": "I.E. SAN MATEO SEDE B",
+    "mesa": 15,
+    "direccion": "CR. 5 B ESTE No. 26 - 04",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.5791541,
+    "longitud": -74.204448,
+    "estado": "Confirmado"
+  },
+  "1022354665": {
+    "puesto": "CENTRO COMERCIAL VENTURA TERREROS",
+    "mesa": 25,
+    "direccion": "CRA 1 NRO 38 89 SOACHA",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.58846,
+    "longitud": -74.1950408,
+    "estado": "Confirmado"
+  },
+  "1016592310": {
+    "puesto": "MODELIA REAL",
+    "mesa": 16,
+    "direccion": "CLL 24 D # 82-13 o CRA 82 # 24C- 29",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.67085,
+    "longitud": -74.1212074,
+    "estado": "Confirmado"
+  },
+  "1022982891": {
+    "puesto": "I.E. SAN MATEO SEDE A",
+    "mesa": 21,
+    "direccion": "CR. 5 B ESTE No. 26 - 04",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.5791541,
+    "longitud": -74.204448,
+    "estado": "Confirmado"
+  },
+  "1073671224": {
+    "puesto": "COLISEO GENERAL SANTANDER",
+    "mesa": 16,
+    "direccion": "CLL. 15 NO. 8 - 53",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.5836645,
+    "longitud": -74.2178312,
+    "estado": "Confirmado"
+  },
+  "79847577": {
+    "puesto": "IE GENERAL SANTANDER SD MI TIERNA EDAD",
+    "mesa": 7,
+    "direccion": "CLL. 14 NO. 8 - 25 CENTRO",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.5831971,
+    "longitud": -74.2186115,
+    "estado": "Confirmado"
+  },
+  "1010034446": {
+    "puesto": "I.E. LEON XIII - CHILOE",
+    "mesa": 22,
+    "direccion": "DIAG. 28 No. 28 - 99 CIUDAD VERDE",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.6049633,
+    "longitud": -74.2141603,
+    "estado": "Confirmado"
+  },
+  "1014662799": {
+    "puesto": "MEDICINA LEGAL",
+    "mesa": 6,
+    "direccion": "KR12 A # 7 - 07",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.5981491,
+    "longitud": -74.0826253,
+    "estado": "Confirmado"
+  },
+  "1144174969": {
+    "puesto": "ESCUELA RAUL SILVA HOLGUIN",
+    "mesa": 29,
+    "direccion": "DG 26K #T83-24",
+    "municipio": "CALI",
+    "departamento": "VALLE",
+    "latitud": 3.4275857,
+    "longitud": -76.4809419,
+    "estado": "Confirmado"
+  },
+  "79660155": {
+    "puesto": "IED GRAL SANTANDER SEDE BTO",
+    "mesa": 18,
+    "direccion": "CARRERA 7 No. 11 -30",
+    "municipio": "SIBATE",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.493369,
+    "longitud": -74.2579751,
+    "estado": "Confirmado"
+  },
+  "43438988": {
+    "puesto": "I.E. FRANCISCO MIRANDA",
+    "mesa": 14,
+    "direccion": "KR 51C # 79-56",
+    "municipio": "MEDELLIN",
+    "departamento": "ANTIOQUIA",
+    "latitud": 6.2740533,
+    "longitud": -75.5636045,
+    "estado": "Confirmado"
+  },
+  "14801742": {
+    "puesto": "I.E. FRANCISCO JOSE DE CALDAS",
+    "mesa": 1,
+    "direccion": "CLLE 8N NUM 16-76 LLERAS",
+    "municipio": "YUMBO",
+    "departamento": "VALLE",
+    "latitud": 3.5867275,
+    "longitud": -76.4930408,
+    "estado": "Confirmado"
+  },
+  "1073671180": {
+    "puesto": "I.E. CIUDAD LATINA",
+    "mesa": 25,
+    "direccion": "CLL. 37 A SUR No. 15 i - 21",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.5756571,
+    "longitud": -74.2456952,
+    "estado": "Confirmado"
+  },
+  "1026300319": {
+    "puesto": "COLEGIO COLSUBSIDIO CHICALA",
+    "mesa": 21,
+    "direccion": "CRA 87 No 53C-26 SUR",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.624965,
+    "longitud": -74.1809234,
+    "estado": "Confirmado"
+  },
+  "52748481": {
+    "puesto": "CENTRO COMERCIAL MERCURIO",
+    "mesa": 6,
+    "direccion": "CRA 7 NRO 32 35",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.5881616,
+    "longitud": -74.2035191,
+    "estado": "Confirmado"
+  },
+  "1024473269": {
+    "puesto": "IE LUIS C. GALAN-SD VILLAS DE CASALOMA",
+    "mesa": 2,
+    "direccion": "CLL 59 B No 15 - 60 E",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.5880355,
+    "longitud": -74.1825666,
+    "estado": "Confirmado"
+  },
+  "1024490789": {
+    "puesto": "I.E. SOACHA AVANZA LA UNIDAD",
+    "mesa": 23,
+    "direccion": "CRA 38 No 14 - 72",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.6099953,
+    "longitud": -74.2238673,
+    "estado": "Confirmado"
+  },
+  "1000491641": {
+    "puesto": "Madrid - Consulado",
+    "mesa": 66,
+    "direccion": "(sin dirección en la consulta)",
+    "municipio": "ESPAÑA",
+    "departamento": "CONSULADOS",
+    "latitud": 40.41775,
+    "longitud": -3.69966,
+    "estado": "Confirmado"
+  },
+  "1032474754": {
+    "puesto": "I. E. EUGENIO DIAZ CASTRO SEDE PRIMARIA",
+    "mesa": 3,
+    "direccion": "VEREDA EL CHARQUITO",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.54396,
+    "longitud": -74.27539,
+    "estado": "Confirmado"
+  },
+  "1074186778": {
+    "puesto": "MEGA COLEGIO",
+    "mesa": 20,
+    "direccion": "CALLE 13A ENTRE CRA 6 Y 8 BARRIO SAN CARLOS",
+    "municipio": "EL ROSAL",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.8546287,
+    "longitud": -74.2608704,
+    "estado": "Confirmado"
+  },
+  "75003551": {
+    "puesto": "LA PRADERA",
+    "mesa": 7,
+    "direccion": "CLL 4 B # 65 - 31",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.6238952,
+    "longitud": -74.1220691,
+    "estado": "Confirmado"
+  },
+  "37670293": {
+    "puesto": "IE. NUEVO COMPARTIR",
+    "mesa": 2,
+    "direccion": "CRA 14 No 29 - 80 SUR COMPARTIR",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.5728031,
+    "longitud": -74.2424978,
+    "estado": "Confirmado"
+  },
+  "1034398566": {
+    "puesto": "SALON COMUNAL MARSELLA",
+    "mesa": 10,
+    "direccion": "CRA 69 No 8-28",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.632406,
+    "longitud": -74.1270128,
+    "estado": "Confirmado"
+  },
+  "1022926750": {
+    "puesto": "COLEGIO COLSUBSIDIO CHICALA",
+    "mesa": 20,
+    "direccion": "CRA 87 No 53C-26 SUR",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.624965,
+    "longitud": -74.1809234,
+    "estado": "Confirmado"
+  },
+  "1012453776": {
+    "puesto": "BOSA SAN JOSE",
+    "mesa": 14,
+    "direccion": "CRA 89BIS #85A-20SUR CRA 80K #85A-33SUR",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.6139291,
+    "longitud": -74.2098205,
+    "estado": "Confirmado"
+  },
+  "1075670670": {
+    "puesto": "SEDE EDU SIMON BOLIVAR",
+    "mesa": 23,
+    "direccion": "CARRERA 14 No 18-38",
+    "municipio": "ZIPAQUIRA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 5.0328018,
+    "longitud": -73.9959328,
+    "estado": "Confirmado"
+  },
+  "1075650862": {
+    "puesto": "IEM CUNDINAMARCA",
+    "mesa": 18,
+    "direccion": "CL 7 N 1A-36 BR. LA CONCEPCION",
+    "municipio": "ZIPAQUIRA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 5.0279744,
+    "longitud": -74.0079785,
+    "estado": "Confirmado"
+  },
+  "1075870902": {
+    "puesto": "C ACONDICIONAMIENTO Y PRE FISICA CAPF II",
+    "mesa": 15,
+    "direccion": "TRASVERSAL 6 No 1-29",
+    "municipio": "SOPO",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.9070309,
+    "longitud": -73.9436846,
+    "estado": "Confirmado"
+  },
+  "1193146788": {
+    "puesto": "CENTRO DEPORTIVO PARQUE DE LOS LOCOS",
+    "mesa": 31,
+    "direccion": "CRA 9 CLL 15",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.584744,
+    "longitud": -74.217161,
+    "estado": "Confirmado"
+  },
+  "53893906": {
+    "puesto": "I.E. LEON XIII",
+    "mesa": 14,
+    "direccion": "CR. 8 NO. 5 - 83 LEON XIII",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.593502,
+    "longitud": -74.1944046,
+    "estado": "Confirmado"
+  },
+  "1012376468": {
+    "puesto": "I.E. SOL NACIENTE",
+    "mesa": 17,
+    "direccion": "CLL 15 A No. 1B - 12",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.5770728,
+    "longitud": -74.2139061,
+    "estado": "Confirmado"
+  },
+  "52236223": {
+    "puesto": "BENJAMIN HERRERA",
+    "mesa": 4,
+    "direccion": "CRA 28 # 63 - 64",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.6550314,
+    "longitud": -74.0764674,
+    "estado": "Confirmado"
+  },
+  "86080270": {
+    "puesto": "COLEGIO MINUTO DE DIOS CIUDAD VERDE",
+    "mesa": 15,
+    "direccion": "CALLE 38 No 31 141 CIUDAD VERDE",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.6061877,
+    "longitud": -74.2130596,
+    "estado": "Confirmado"
+  },
+  "39679683": {
+    "puesto": "I.E. JULIO CESAR TURBAY AYALA",
+    "mesa": 5,
+    "direccion": "TV 9 ESTE No.45A- 80",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.59546,
+    "longitud": -74.19502,
+    "estado": "Confirmado"
+  },
+  "52526840": {
+    "puesto": "I.E. EL BOSQUE",
+    "mesa": 11,
+    "direccion": "CLL. 32 CON CR 15 ESTE",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.58543,
+    "longitud": -74.20145,
+    "estado": "Confirmado"
+  },
+  "1014296488": {
+    "puesto": "BOLIVIA",
+    "mesa": 23,
+    "direccion": "CRA 103 D No 85 A 72",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.71182,
+    "longitud": -74.12034,
+    "estado": "Confirmado"
+  },
+  "52197931": {
+    "puesto": "COLISEO GENERAL SANTANDER",
+    "mesa": 8,
+    "direccion": "CLL. 15 NO. 8 - 53",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.5836645,
+    "longitud": -74.2178312,
+    "estado": "Confirmado"
+  },
+  "10740728": {
+    "puesto": "IED GRAL SANTANDER SEDE BTO",
+    "mesa": 6,
+    "direccion": "CARRERA 7 No. 11 -30",
+    "municipio": "SIBATE",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.493369,
+    "longitud": -74.2579751,
+    "estado": "Confirmado"
+  },
+  "52356333": {
+    "puesto": "COLEGIO MILITAR LICEO SOCIAL COMPARTIR",
+    "mesa": 2,
+    "direccion": "CLL 18 SUR NRO 9F 24 COMPARTIR",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.5663852,
+    "longitud": -74.2371026,
+    "estado": "Confirmado"
+  },
+  "1024575963": {
+    "puesto": "GALICIA",
+    "mesa": 34,
+    "direccion": "CLL 60 A SUR # 73-31",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.58712,
+    "longitud": -74.16235,
+    "estado": "Confirmado"
+  },
+  "1073674702": {
+    "puesto": "ALCALA",
+    "mesa": 27,
+    "direccion": "CRA 51 C # 33- 41 SUR",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.59981,
+    "longitud": -74.12543,
+    "estado": "Confirmado"
+  },
+  "52272820": {
+    "puesto": "CUNDINAMARCA",
+    "mesa": 3,
+    "direccion": "CLL 19 C # 33-30",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.61984,
+    "longitud": -74.10123,
+    "estado": "Confirmado"
+  },
+  "1031142237": {
+    "puesto": "LUCERO DEL SUR",
+    "mesa": 25,
+    "direccion": "CRA 17 B BIS A # 67-30 SUR o 67-48 SUR",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.55123,
+    "longitud": -74.14012,
+    "estado": "Confirmado"
+  },
+  "1031640143": {
+    "puesto": "I.E. VIDA NUEVA",
+    "mesa": 21,
+    "direccion": "CRA 19 A No 4 - 90 SUR",
+    "municipio": "SOACHA",
+    "departamento": "CUNDINAMARCA",
+    "latitud": 4.5913261,
+    "longitud": -74.2285761,
+    "estado": "Confirmado"
+  },
+  "72289576": {
+    "puesto": "UNIVERSIDAD JUAN DE CASTELLANOS",
+    "mesa": 12,
+    "direccion": "CRA 11 # 11 - 44",
+    "municipio": "TUNJA",
+    "departamento": "BOYACA",
+    "latitud": 5.531776,
+    "longitud": -73.363155,
+    "estado": "Confirmado"
+  },
+  "87070187": {
+    "puesto": "LIC DE LA MERCED-BACHILLERATO",
+    "mesa": 15,
+    "direccion": "CL 18 # 34-104",
+    "municipio": "PASTO",
+    "departamento": "NARIÑO",
+    "latitud": 1.219153,
+    "longitud": -77.285814,
+    "estado": "Confirmado"
+  },
+  "55237762": {
+    "puesto": "COL SAN JUAN DE GIRON",
+    "mesa": 3,
+    "direccion": "CR 25 NO 31-08 CENTRO",
+    "municipio": "GIRON",
+    "departamento": "SANTANDER",
+    "latitud": 7.068229,
+    "longitud": -73.169542,
+    "estado": "Confirmado"
+  },
+  "1116787273": {
+    "puesto": "CONCENTRACION CAMILO TORRES",
+    "mesa": 15,
+    "direccion": "CRA 8 No 24-15 BARRIO LA UNION",
+    "municipio": "ARAUCA",
+    "departamento": "ARAUCA",
+    "latitud": 7.087754,
+    "longitud": -70.754714,
+    "estado": "Confirmado"
+  },
+  "1005476542": {
+    "puesto": "ESCUELA FLOR DE MI LLANO",
+    "mesa": 11,
+    "direccion": "CRA 9 No 4 -65 SUR",
+    "municipio": "ARAUCA",
+    "departamento": "ARAUCA",
+    "latitud": 7.078451,
+    "longitud": -70.758412,
+    "estado": "Confirmado"
+  },
+  "1098644764": {
+    "puesto": "COL SAN PEDRO CLAVER",
+    "mesa": 29,
+    "direccion": "CR 28 # 47 - 06 BARRIO SOTOMAYOR",
+    "municipio": "BUCARAMANGA",
+    "departamento": "SANTANDER",
+    "latitud": 7.118121,
+    "longitud": -73.116524,
+    "estado": "Confirmado"
+  },
+  "79426568": {
+    "puesto": "COL SANTO T DE AQUINO SD PRIA",
+    "mesa": 9,
+    "direccion": "KR 14 #12-07",
+    "municipio": "DUITAMA",
+    "departamento": "BOYACA",
+    "latitud": 5.825825,
+    "longitud": -73.033621,
+    "estado": "Confirmado"
+  },
+  "1007129127": {
+    "puesto": "CENTRO DE EVENTOS",
+    "mesa": 21,
+    "direccion": "CRA 3 No 8-16",
+    "municipio": "JUAN DE ACOSTA",
+    "departamento": "ATLANTICO",
+    "latitud": 10.828551,
+    "longitud": -75.034547,
+    "estado": "Confirmado"
+  },
+  "1030673385": {
+    "puesto": "COLEGIO ALQUERIA",
+    "mesa": 20,
+    "direccion": "CLL 37 B SUR # 68 D - 93",
+    "municipio": "BOGOTA D.C.",
+    "departamento": "BOGOTA D.C.",
+    "latitud": 4.599573,
+    "longitud": -74.133281,
+    "estado": "Confirmado"
+  }
+}
