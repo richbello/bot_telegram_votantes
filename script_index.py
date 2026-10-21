@@ -28,49 +28,50 @@ html_content = f'''<!DOCTYPE html>
     <style>
         :root {{--bg:#0f1715;--card:#16221f;--accent:#2dd4bf;--accent-d:#0d9488;--text:#e2e8f0;--muted:#94a3b8;--border:#243531;--chat:#0b1110;--msg:#1c2a27}}
         * {{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif}}
-        body {{background:var(--bg);color:var(--text);padding:12px;max-width:100vw;overflow-x:hidden}}
+        body {{background:var(--bg);color:var(--text);padding:14px;max-width:100vw;overflow-x:hidden}}
         header {{max-width:1200px;margin:0 auto 16px}}
-        .badge {{background:#d97706;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;display:inline-block}}
-        h1 {{font-size:20px;font-weight:700;margin:6px 0;line-height:1.2}}
-        p.subtitle {{color:var(--muted);font-size:12px}}
-        .grid {{display:grid;grid-template-columns:1fr;gap:16px;max-width:1200px;margin:0 auto}}
+        .badge {{background:#d97706;color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:6px;display:inline-block}}
+        h1 {{font-size:22px;font-weight:700;margin:8px 0;line-height:1.25}}
+        p.subtitle {{color:var(--muted);font-size:13px;line-height:1.4}}
+        .grid {{display:grid;grid-template-columns:1fr;gap:18px;max-width:1200px;margin:0 auto}}
         @media(min-width: 850px) {{
             body {{padding:20px}}
             h1 {{font-size:26px}}
             p.subtitle {{font-size:14px}}
-            .grid {{grid-template-columns:360px 1fr;gap:20px}}
+            .grid {{grid-template-columns:380px 1fr;gap:20px}}
         }}
-        .card {{background:var(--card);border-radius:16px;padding:14px;border:1px solid var(--border)}}
-        .chat-box {{display:flex;flex-direction:column;height:520px}}
-        @media(min-width: 850px) {{ .chat-box {{height:580px}} }}
-        .chat-header {{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:10px}}
-        .avatar {{width:34px;height:34px;background:var(--accent-d);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:13px}}
-        .bot-status small {{color:var(--accent);display:block;font-size:10px}}
-        .clear-btn {{background:transparent;border:1px solid var(--border);color:var(--muted);padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;transition:0.2s}}
+        .card {{background:var(--card);border-radius:16px;padding:16px;border:1px solid var(--border)}}
+        .chat-box {{display:flex;flex-direction:column;height:550px}}
+        @media(min-width: 850px) {{ .chat-box {{height:600px}} }}
+        .chat-header {{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:12px}}
+        .avatar {{width:40px;height:40px;background:var(--accent-d);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:15px}}
+        .bot-status strong {{font-size:15px}}
+        .bot-status small {{color:var(--accent);display:block;font-size:12px}}
+        .clear-btn {{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:8px;font-size:13px;cursor:pointer;transition:0.2s;font-weight:500}}
         .clear-btn:hover {{background:#ef4444;color:#fff;border-color:#ef4444}}
-        .messages {{flex-grow:1;background:var(--chat);border-radius:12px;padding:10px;margin:10px 0;overflow-y:auto;display:flex;flex-direction:column;gap:8px}}
-        .msg {{max-width:88%;padding:8px 12px;border-radius:10px;font-size:12px;line-height:1.4;white-space:pre-line;word-break:break-word}}
+        .messages {{flex-grow:1;background:var(--chat);border-radius:12px;padding:12px;margin:12px 0;overflow-y:auto;display:flex;flex-direction:column;gap:10px}}
+        .msg {{max-width:88%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.45;white-space:pre-line;word-break:break-word}}
         .msg.bot {{background:var(--msg);align-self:flex-start}}
         .msg.user {{background:var(--accent-d);align-self:flex-end;color:#fff}}
-        .msg .time {{font-size:9px;color:var(--muted);text-align:right;margin-top:3px;display:block}}
-        .quick-btns {{display:flex;gap:6px;margin-bottom:8px;overflow-x:auto;padding-bottom:4px}}
-        .q-btn {{background:var(--msg);border:1px solid var(--accent);color:var(--accent);padding:6px 10px;border-radius:12px;font-size:11px;cursor:pointer;white-space:nowrap;flex-shrink:0}}
+        .msg .time {{font-size:11px;color:var(--muted);text-align:right;margin-top:4px;display:block}}
+        .quick-btns {{display:flex;gap:8px;margin-bottom:10px;overflow-x:auto;padding-bottom:6px}}
+        .q-btn {{background:var(--msg);border:1px solid var(--accent);color:var(--accent);padding:8px 12px;border-radius:14px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0}}
         .input-row {{display:flex;gap:8px}}
-        .input-row input {{flex-grow:1;background:var(--chat);border:1px solid var(--border);border-radius:18px;padding:8px 12px;color:#fff;font-size:13px;outline:none;width:50%}}
-        .input-row button {{background:var(--accent);color:#000;border:none;padding:8px 14px;border-radius:18px;font-weight:600;font-size:12px;cursor:pointer;flex-shrink:0}}
-        .tabs {{display:flex;gap:12px;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:12px;overflow-x:auto}}
-        .tab-btn {{background:none;border:none;color:var(--muted);font-weight:600;font-size:13px;cursor:pointer;white-space:nowrap}}
-        .tab-btn.active {{color:var(--accent);border-bottom:2px solid var(--accent);padding-bottom:6px}}
-        .stats {{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}}
-        .stat-card {{background:var(--chat);border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center}}
-        .stat-card h2 {{color:var(--accent);font-size:18px}}
-        .stat-card p {{color:var(--muted);font-size:10px;margin-top:2px}}
-        .table-wrap {{overflow-x:auto;max-height:360px;-webkit-overflow-scrolling:touch}}
-        table {{width:100%;border-collapse:collapse;font-size:11px;text-align:left;white-space:nowrap}}
-        th,td {{padding:8px;border-bottom:1px solid var(--border)}}
-        th {{background:var(--chat);color:var(--accent);position:sticky;top:0}}
+        .input-row input {{flex-grow:1;background:var(--chat);border:1px solid var(--border);border-radius:20px;padding:10px 16px;color:#fff;font-size:15px;outline:none}}
+        .input-row button {{background:var(--accent);color:#000;border:none;padding:10px 18px;border-radius:20px;font-weight:700;font-size:14px;cursor:pointer;flex-shrink:0}}
+        .tabs {{display:flex;gap:14px;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:14px;overflow-x:auto}}
+        .tab-btn {{background:none;border:none;color:var(--muted);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap}}
+        .tab-btn.active {{color:var(--accent);border-bottom:2px solid var(--accent);padding-bottom:8px}}
+        .stats {{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}}
+        .stat-card {{background:var(--chat);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}}
+        .stat-card h2 {{color:var(--accent);font-size:20px}}
+        .stat-card p {{color:var(--muted);font-size:11px;margin-top:2px}}
+        .table-wrap {{overflow-x:auto;max-height:380px;-webkit-overflow-scrolling:touch}}
+        table {{width:100%;border-collapse:collapse;font-size:13px;text-align:left;white-space:nowrap}}
+        th,td {{padding:10px 12px;border-bottom:1px solid var(--border)}}
+        th {{background:var(--chat);color:var(--accent);position:sticky;top:0;font-size:13px}}
         tr:hover {{background:var(--msg)}}
-        .chip {{background:var(--msg);border:1px solid var(--accent);color:var(--accent);padding:4px 8px;border-radius:6px;cursor:pointer;display:inline-block;margin:3px;font-size:11px}}
+        .chip {{background:var(--msg);border:1px solid var(--accent);color:var(--accent);padding:6px 12px;border-radius:8px;cursor:pointer;display:inline-block;margin:4px;font-size:13px;font-weight:500}}
     </style>
 </head>
 <body>
@@ -84,7 +85,7 @@ html_content = f'''<!DOCTYPE html>
         <div class="chat-header">
             <div style="display:flex;align-items:center">
                 <div class="avatar">27</div>
-                <div class="bot-status" style="margin-left:8px">
+                <div class="bot-status" style="margin-left:10px">
                     <strong>Campaña Soacha 2027</strong>
                     <small>bot • en línea</small>
                 </div>
@@ -125,7 +126,7 @@ html_content = f'''<!DOCTYPE html>
             </div>
         </div>
         <div id="tab-probar" class="tab-content" style="display:none">
-            <p style="font-size:11px;color:var(--muted);margin-bottom:8px">Toque cualquier cédula para consultar en el chat:</p>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Toque cualquier cédula para consultar en el chat:</p>
             <div id="chipsWrap"></div>
         </div>
         <div id="tab-audit" class="tab-content" style="display:none">
@@ -220,4 +221,4 @@ initDB();
 with open('index.html', 'w', encoding='utf-8') as f:
     f.write(html_content)
 
-print("✅ 'index.html' generado exitosamente con diseño 100% Responsivo Móvil.")
+print("✅ 'index.html' generado exitosamente con fuentes y botones agrandados.")
