@@ -1,18 +1,36 @@
-﻿import pandas as pd
+﻿import os
+import pandas as pd
 import json
+import glob
 
-xls = pd.ExcelFile('puestos_votacion_prueba.xlsx')
-df = pd.read_excel(xls, 'Votantes')
+excel_file = 'puestos_votacion_prueba_3.xlsx'
+if not os.path.exists(excel_file):
+    excel_files = glob.glob('*.xlsx')
+    if excel_files:
+        excel_file = excel_files[0]
+    else:
+        excel_file = 'puestos_votacion_prueba.xlsx'
 
-db = [{
-    'cedula': str(r['NUIP']).strip(),
-    'puesto': str(r['Puesto']).strip(),
-    'mesa': int(r['Mesa']),
-    'direccion': str(r['Dirección']).strip(),
-    'ciudad': str(r['Municipio']).strip(),
-    'lat': float(r['Latitud']),
-    'lng': float(r['Longitud'])
-} for _, r in df.iterrows()]
+print(f"Leyendo datos desde: {excel_file}")
+
+xls = pd.ExcelFile(excel_file)
+sheet_name = 'Votantes' if 'Votantes' in xls.sheet_names else xls.sheet_names[0]
+df = pd.read_excel(xls, sheet_name)
+
+db = []
+for _, r in df.iterrows():
+    try:
+        db.append({
+            'cedula': str(r['NUIP']).strip(),
+            'puesto': str(r['Puesto']).strip(),
+            'mesa': int(r['Mesa']) if pd.notnull(r['Mesa']) else 0,
+            'direccion': str(r['Dirección']).strip() if pd.notnull(r['Dirección']) else '',
+            'ciudad': str(r['Municipio']).strip() if pd.notnull(r['Municipio']) else '',
+            'lat': float(r['Latitud']) if pd.notnull(r['Latitud']) else 0.0,
+            'lng': float(r['Longitud']) if pd.notnull(r['Longitud']) else 0.0
+        })
+    except Exception as e:
+        print(f"Fila omitida por error: {e}")
 
 json_db = json.dumps(db, ensure_ascii=False)
 total_db = len(db)
@@ -28,50 +46,50 @@ html_content = f'''<!DOCTYPE html>
     <style>
         :root {{--bg:#0f1715;--card:#16221f;--accent:#2dd4bf;--accent-d:#0d9488;--text:#e2e8f0;--muted:#94a3b8;--border:#243531;--chat:#0b1110;--msg:#1c2a27}}
         * {{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif}}
-        body {{background:var(--bg);color:var(--text);padding:14px;max-width:100vw;overflow-x:hidden}}
-        header {{max-width:1200px;margin:0 auto 16px}}
-        .badge {{background:#d97706;color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:6px;display:inline-block}}
-        h1 {{font-size:22px;font-weight:700;margin:8px 0;line-height:1.25}}
-        p.subtitle {{color:var(--muted);font-size:13px;line-height:1.4}}
-        .grid {{display:grid;grid-template-columns:1fr;gap:18px;max-width:1200px;margin:0 auto}}
+        body {{background:var(--bg);color:var(--text);padding:14px;max-width:100vw;overflow-x:hidden;font-size:15px}}
+        header {{max-width:1200px;margin:0 auto 18px}}
+        .badge {{background:#d97706;color:#fff;font-size:13px;font-weight:700;padding:5px 12px;border-radius:6px;display:inline-block}}
+        h1 {{font-size:24px;font-weight:700;margin:10px 0;line-height:1.25}}
+        p.subtitle {{color:var(--muted);font-size:14px;line-height:1.4}}
+        .grid {{display:grid;grid-template-columns:1fr;gap:20px;max-width:1200px;margin:0 auto}}
         @media(min-width: 850px) {{
-            body {{padding:20px}}
-            h1 {{font-size:26px}}
-            p.subtitle {{font-size:14px}}
-            .grid {{grid-template-columns:380px 1fr;gap:20px}}
+            body {{padding:24px}}
+            h1 {{font-size:28px}}
+            p.subtitle {{font-size:15px}}
+            .grid {{grid-template-columns:400px 1fr;gap:24px}}
         }}
-        .card {{background:var(--card);border-radius:16px;padding:16px;border:1px solid var(--border)}}
-        .chat-box {{display:flex;flex-direction:column;height:550px}}
-        @media(min-width: 850px) {{ .chat-box {{height:600px}} }}
-        .chat-header {{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:12px}}
-        .avatar {{width:40px;height:40px;background:var(--accent-d);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:15px}}
-        .bot-status strong {{font-size:15px}}
-        .bot-status small {{color:var(--accent);display:block;font-size:12px}}
-        .clear-btn {{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:8px;font-size:13px;cursor:pointer;transition:0.2s;font-weight:500}}
+        .card {{background:var(--card);border-radius:18px;padding:18px;border:1px solid var(--border)}}
+        .chat-box {{display:flex;flex-direction:column;height:580px}}
+        @media(min-width: 850px) {{ .chat-box {{height:620px}} }}
+        .chat-header {{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:14px}}
+        .avatar {{width:44px;height:44px;background:var(--accent-d);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:16px}}
+        .bot-status strong {{font-size:16px}}
+        .bot-status small {{color:var(--accent);display:block;font-size:13px}}
+        .clear-btn {{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 14px;border-radius:10px;font-size:14px;cursor:pointer;transition:0.2s;font-weight:600}}
         .clear-btn:hover {{background:#ef4444;color:#fff;border-color:#ef4444}}
-        .messages {{flex-grow:1;background:var(--chat);border-radius:12px;padding:12px;margin:12px 0;overflow-y:auto;display:flex;flex-direction:column;gap:10px}}
-        .msg {{max-width:88%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.45;white-space:pre-line;word-break:break-word}}
+        .messages {{flex-grow:1;background:var(--chat);border-radius:14px;padding:14px;margin:14px 0;overflow-y:auto;display:flex;flex-direction:column;gap:12px}}
+        .msg {{max-width:90%;padding:12px 16px;border-radius:14px;font-size:15px;line-height:1.5;white-space:pre-line;word-break:break-word}}
         .msg.bot {{background:var(--msg);align-self:flex-start}}
         .msg.user {{background:var(--accent-d);align-self:flex-end;color:#fff}}
-        .msg .time {{font-size:11px;color:var(--muted);text-align:right;margin-top:4px;display:block}}
-        .quick-btns {{display:flex;gap:8px;margin-bottom:10px;overflow-x:auto;padding-bottom:6px}}
-        .q-btn {{background:var(--msg);border:1px solid var(--accent);color:var(--accent);padding:8px 12px;border-radius:14px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0}}
-        .input-row {{display:flex;gap:8px}}
-        .input-row input {{flex-grow:1;background:var(--chat);border:1px solid var(--border);border-radius:20px;padding:10px 16px;color:#fff;font-size:15px;outline:none}}
-        .input-row button {{background:var(--accent);color:#000;border:none;padding:10px 18px;border-radius:20px;font-weight:700;font-size:14px;cursor:pointer;flex-shrink:0}}
-        .tabs {{display:flex;gap:14px;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:14px;overflow-x:auto}}
-        .tab-btn {{background:none;border:none;color:var(--muted);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap}}
-        .tab-btn.active {{color:var(--accent);border-bottom:2px solid var(--accent);padding-bottom:8px}}
-        .stats {{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}}
-        .stat-card {{background:var(--chat);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}}
-        .stat-card h2 {{color:var(--accent);font-size:20px}}
-        .stat-card p {{color:var(--muted);font-size:11px;margin-top:2px}}
-        .table-wrap {{overflow-x:auto;max-height:380px;-webkit-overflow-scrolling:touch}}
-        table {{width:100%;border-collapse:collapse;font-size:13px;text-align:left;white-space:nowrap}}
-        th,td {{padding:10px 12px;border-bottom:1px solid var(--border)}}
-        th {{background:var(--chat);color:var(--accent);position:sticky;top:0;font-size:13px}}
+        .msg .time {{font-size:12px;color:var(--muted);text-align:right;margin-top:6px;display:block}}
+        .quick-btns {{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto;padding-bottom:6px}}
+        .q-btn {{background:var(--msg);border:1px solid var(--accent);color:var(--accent);padding:10px 14px;border-radius:16px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0}}
+        .input-row {{display:flex;gap:10px}}
+        .input-row input {{flex-grow:1;background:var(--chat);border:1px solid var(--border);border-radius:24px;padding:12px 18px;color:#fff;font-size:16px;outline:none}}
+        .input-row button {{background:var(--accent);color:#000;border:none;padding:12px 20px;border-radius:24px;font-weight:700;font-size:15px;cursor:pointer;flex-shrink:0}}
+        .tabs {{display:flex;gap:16px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:16px;overflow-x:auto}}
+        .tab-btn {{background:none;border:none;color:var(--muted);font-weight:600;font-size:15px;cursor:pointer;white-space:nowrap}}
+        .tab-btn.active {{color:var(--accent);border-bottom:3px solid var(--accent);padding-bottom:8px}}
+        .stats {{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}}
+        .stat-card {{background:var(--chat);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center}}
+        .stat-card h2 {{color:var(--accent);font-size:22px}}
+        .stat-card p {{color:var(--muted);font-size:12px;margin-top:2px}}
+        .table-wrap {{overflow-x:auto;max-height:400px;-webkit-overflow-scrolling:touch}}
+        table {{width:100%;border-collapse:collapse;font-size:14px;text-align:left;white-space:nowrap}}
+        th,td {{padding:12px 14px;border-bottom:1px solid var(--border)}}
+        th {{background:var(--chat);color:var(--accent);position:sticky;top:0;font-size:14px}}
         tr:hover {{background:var(--msg)}}
-        .chip {{background:var(--msg);border:1px solid var(--accent);color:var(--accent);padding:6px 12px;border-radius:8px;cursor:pointer;display:inline-block;margin:4px;font-size:13px;font-weight:500}}
+        .chip {{background:var(--msg);border:1px solid var(--accent);color:var(--accent);padding:8px 14px;border-radius:10px;cursor:pointer;display:inline-block;margin:5px;font-size:14px;font-weight:600}}
     </style>
 </head>
 <body>
@@ -85,7 +103,7 @@ html_content = f'''<!DOCTYPE html>
         <div class="chat-header">
             <div style="display:flex;align-items:center">
                 <div class="avatar">27</div>
-                <div class="bot-status" style="margin-left:10px">
+                <div class="bot-status" style="margin-left:12px">
                     <strong>Campaña Soacha 2027</strong>
                     <small>bot • en línea</small>
                 </div>
@@ -126,7 +144,7 @@ html_content = f'''<!DOCTYPE html>
             </div>
         </div>
         <div id="tab-probar" class="tab-content" style="display:none">
-            <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Toque cualquier cédula para consultar en el chat:</p>
+            <p style="font-size:14px;color:var(--muted);margin-bottom:12px">Toque cualquier cédula para consultar en el chat:</p>
             <div id="chipsWrap"></div>
         </div>
         <div id="tab-audit" class="tab-content" style="display:none">
@@ -221,4 +239,4 @@ initDB();
 with open('index.html', 'w', encoding='utf-8') as f:
     f.write(html_content)
 
-print("✅ 'index.html' generado exitosamente con fuentes y botones agrandados.")
+print(f"✅ 'index.html' generado exitosamente con {total_db} registros.")
