@@ -3,20 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bot de Telegram - Consulta Electoral</title>
+    <title>Bot de Telegram - Consulta de Puesto de Votación</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f4f6f9; }
-        .card { background: white; padding: 30px; border-radius: 10px; max-width: 500px; margin: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .btn { display: inline-block; padding: 12px 24px; background-color: #0088cc; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 15px; }
-        .btn:hover { background-color: #006699; }
+        :root {
+            --bg-dark: #0f1715;
+            --card-bg: #16221f;
+            --accent: #2dd4bf;
+            --accent-hover: #14b8a6;
+            --text-light: #e2e8f0;
+            --text-muted: #94a3b8;
+            --chat-bg: #0b1110;
+            --msg-bg: #1c2a27;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-light); padding: 30px 20px; }
+        header { max-width: 1200px; margin: 0 auto 30px; }
+        .badge { background: #d97706; color: #fff; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
+        h1 { font-size: 28px; font-weight: 700; margin: 10px 0 8px; }
+        p.subtitle { color: var(--text-muted); font-size: 14px; max-width: 700px; line-height: 1.5; }
+        
+        .main-container { display: grid; grid-template-columns: 380px 1fr; gap: 25px; max-width: 1200px; margin: 0 auto; }
+        
+        /* Chat Simulator */
+        .chat-card { background: var(--card-bg); border-radius: 16px; padding: 20px; border: 1px solid #243531; display: flex; flex-direction: column; height: 600px; }
+        .chat-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 15px; border-bottom: 1px solid #243531; }
+        .avatar { width: 40px; height: 40px; background: #0d9488; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; margin-right: 12px; }
+        .bot-info { flex-grow: 1; }
+        .bot-info h4 { font-size: 15px; font-weight: 600; }
+        .bot-info small { color: var(--accent); font-size: 12px; }
+        .role-tag { background: #134e4a; color: var(--accent); font-size: 11px; padding: 2px 8px; border-radius: 12px; }
+        
+        .chat-body { flex-grow: 1; background: var(--chat-bg); border-radius: 12px; padding: 15px; margin: 15px 0; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.4; white-space: pre-line; }
+        .msg.bot { background: var(--msg-bg); align-self: flex-start; color: var(--text-light); }
+        .msg.user { background: #0f766e; align-self: flex-end; color: white; }
+        .msg .time { font-size: 10px; color: var(--text-muted); text-align: right; margin-top: 4px; display: block; }
+        
+        .chat-buttons { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+        .quick-btn { background: var(--msg-bg); border: 1px solid var(--accent); color: var(--accent); padding: 6px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; transition: 0.2s; }
+        .quick-btn:hover { background: var(--accent); color: #000; }
+        
+        .chat-input { display: flex; gap: 8px; }
+        .chat-input input { flex-grow: 1; background: var(--chat-bg); border: 1px solid #243531; border-radius: 20px; padding: 10px 15px; color: white; font-size: 13px; outline: none; }
+        .chat-input button { background: var(--accent); color: #000; border: none; padding: 10px 18px; border-radius: 20px; font-weight: 600; cursor: pointer; }
+        .chat-input button:hover { background: var(--accent-hover); }
+
+        /* Right Panel */
+        .panel-card { background: var(--card-bg); border-radius: 16px; padding: 25px; border: 1px solid #243531; }
+        .tabs { display: flex; gap: 20px; border-bottom: 1px solid #243531; padding-bottom: 10px; margin-bottom: 20px; }
+        .tab { background: none; border: none; color: var(--text-muted); font-weight: 600; font-size: 14px; cursor: pointer; padding-bottom: 5px; }
+        .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+        
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+        .info-subcard { background: var(--chat-bg); border: 1px solid #243531; border-radius: 12px; padding: 15px; }
+        .info-subcard h3 { font-size: 16px; color: var(--accent); margin-bottom: 10px; }
+        .info-subcard ul { list-style: none; }
+        .info-subcard li { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; position: relative; padding-left: 12px; }
+        .info-subcard li::before { content: "•"; color: var(--accent); position: absolute; left: 0; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h2>?? Bot de Consulta de Puesto de Votación</h2>
-        <p>Este repositorio alberga el backend en Python para el bot de Telegram y la base de datos PostgreSQL.</p>
-        <p>Para interactuar con el bot directamente en Telegram, haz clic a continuación:</p>
-        <a href="https://t.me/TU_BOT_DE_TELEGRAM" class="btn" target="_blank">Abrir en Telegram</a>
+
+<header>
+    <span class="badge">DEMO • DATOS REALES SOACHA</span>
+    <h1>Bot de consulta de puesto de votación</h1>
+    <p class="subtitle">Simulación interactiva del bot de campaña conectado con la base de datos de puestos de votación de Soacha. Pruebe ingresando un número de cédula en la simulación del chat.</p>
+</header>
+
+<div class="main-container">
+    <!-- Chat Simulator -->
+    <div class="chat-card">
+        <div class="chat-header">
+            <div style="display:flex; align-items:center;">
+                <div class="avatar">27</div>
+                <div class="bot-info">
+                    <h4>Campaña Soacha 2027</h4>
+                    <small>bot • en línea</small>
+                </div>
+            </div>
+            <span class="role-tag">Ciudadano</span>
+        </div>
+
+        <div class="chat-body" id="chatBody">
+            <div class="msg bot">
+                Hola ?? Soy el asistente de la campaña. Le ayudo a encontrar su puesto de votación.
+                <span class="time">01:17 p. m.</span>
+            </div>
+            <div class="msg bot">
+                ¿Qué desea hacer?<br>
+                1. Consultar mi puesto de votación<br>
+                2. Soy líder o coordinador<br>
+                3. Política de datos
+                <span class="time">01:17 p. m.</span>
+            </div>
+        </div>
+
+        <div class="chat-buttons">
+            <button class="quick-btn" onclick="seleccionarOpcion('1. Mi puesto')">1. Mi puesto</button>
+            <button class="quick-btn" onclick="seleccionarOpcion('2. Soy líder')">2. Soy líder</button>
+            <button class="quick-btn" onclick="seleccionarOpcion('3. Política de datos')">3. Política de datos</button>
+        </div>
+
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Escriba un mensaje o cédula..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">Enviar</button>
+        </div>
     </div>
+
+    <!-- Right Information Panel -->
+    <div class="panel-card">
+        <div class="tabs">
+            <button class="tab active">Cómo funciona</button>
+            <button class="tab">Probar</button>
+            <button class="tab">Base de datos</button>
+            <button class="tab">Auditoría</button>
+        </div>
+
+        <div class="cards-grid">
+            <div class="info-subcard">
+                <h3>Ciudadano</h3>
+                <ul>
+                    <li>Consulta solo su propia cédula.</li>
+                    <li>Ve puesto, mesa, dirección, ciudad y barrio.</li>
+                    <li>Acceso directo al mapa en Google Maps.</li>
+                    <li>Aceptación previa de política de datos.</li>
+                </ul>
+            </div>
+            <div class="info-subcard">
+                <h3>Líder</h3>
+                <ul>
+                    <li>Ingresa con PIN personal.</li>
+                    <li>Ve datos completos solo de su red de referidos.</li>
+                    <li>Agrupación por puesto útil para logística.</li>
+                </ul>
+            </div>
+            <div class="info-subcard">
+                <h3>Coordinación</h3>
+                <ul>
+                    <li>Acceso a toda la base general.</li>
+                    <li>Resumen de simpatizantes por puesto.</li>
+                    <li>Revisa el registro de auditoría.</li>
+                </ul>
+            </div>
+            <div class="info-subcard" style="grid-column: span 3;">
+                <h3>Producción</h3>
+                <ul>
+                    <li>Backend integrado con Telegram Bot API + FastAPI.</li>
+                    <li>Base de datos PostgreSQL.</li>
+                    <li>Carga masiva directa desde archivos Excel de líderes.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function sendMessage() {
+        const input = document.getElementById('userInput');
+        const text = input.value.trim();
+        if (!text) return;
+
+        addMessage(text, 'user');
+        input.value = '';
+
+        setTimeout(() => {
+            if (/^\d+$/.test(text)) {
+                addMessage("?? Buscando en la base de datos de Soacha...\n\n?? *Puesto Encontrado*\n• Cédula: " + text + "\n• Puesto: COLEGIO MINUTO DE DIOS CIUDAD VERDE\n• Mesa: 37\n• Dirección: CALLE 38 No 31 141\n• Municipio: SOACHA\n\n??? https://www.google.com/maps?q=4.606188,-74.213060", 'bot');
+            } else {
+                addMessage("Por favor ingrese su número de Cédula sin puntos ni espacios.", 'bot');
+            }
+        }, 600);
+    }
+
+    function seleccionarOpcion(opcion) {
+        addMessage(opcion, 'user');
+        setTimeout(() => {
+            if (opcion.includes('1.')) {
+                addMessage("Por favor ingrese su número de Cédula (NUIP):", 'bot');
+            } else if (opcion.includes('2.')) {
+                addMessage("Por favor ingrese su PIN de acceso de Líder/Coordinador:", 'bot');
+            } else {
+                addMessage("Conforme a la Ley 1581 de 2012, sus datos son tratados de forma confidencial únicamente para fines de la campaña.", 'bot');
+            }
+        }, 500);
+    }
+
+    function addMessage(text, sender) {
+        const chatBody = document.getElementById('chatBody');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = msg ;
+        
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        msgDiv.innerHTML = text.replace(/\n/g, '<br>') + <span class="time"></span>;
+        chatBody.appendChild(msgDiv);
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function handleKeyPress(e) {
+        if (e.key === 'Enter') sendMessage();
+    }
+</script>
+
 </body>
 </html>
