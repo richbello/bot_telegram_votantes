@@ -1,309 +1,367 @@
-﻿<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bot de Telegram - Consulta de Puesto de Votación</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-dark: #0f1715;
-            --card-bg: #16221f;
-            --accent: #2dd4bf;
-            --accent-hover: #14b8a6;
-            --text-light: #e2e8f0;
-            --text-muted: #94a3b8;
-            --chat-bg: #0b1110;
-            --msg-bg: #1c2a27;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-light); padding: 30px 20px; }
-        header { max-width: 1200px; margin: 0 auto 30px; }
-        .badge { background: #d97706; color: #fff; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
-        h1 { font-size: 28px; font-weight: 700; margin: 10px 0 8px; }
-        p.subtitle { color: var(--text-muted); font-size: 14px; max-width: 700px; line-height: 1.5; }
-        
-        .main-container { display: grid; grid-template-columns: 380px 1fr; gap: 25px; max-width: 1200px; margin: 0 auto; }
-        
-        /* Chat Simulator */
-        .chat-card { background: var(--card-bg); border-radius: 16px; padding: 20px; border: 1px solid #243531; display: flex; flex-direction: column; height: 600px; }
-        .chat-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 15px; border-bottom: 1px solid #243531; }
-        .avatar { width: 40px; height: 40px; background: #0d9488; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; margin-right: 12px; }
-        .bot-info { flex-grow: 1; }
-        .bot-info h4 { font-size: 15px; font-weight: 600; }
-        .bot-info small { color: var(--accent); font-size: 12px; }
-        .role-tag { background: #134e4a; color: var(--accent); font-size: 11px; padding: 2px 8px; border-radius: 12px; }
-        
-        .chat-body { flex-grow: 1; background: var(--chat-bg); border-radius: 12px; padding: 15px; margin: 15px 0; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.4; white-space: pre-line; }
-        .msg.bot { background: var(--msg-bg); align-self: flex-start; color: var(--text-light); }
-        .msg.user { background: #0f766e; align-self: flex-end; color: white; }
-        .msg .time { font-size: 10px; color: var(--text-muted); text-align: right; margin-top: 4px; display: block; }
-        
-        .chat-buttons { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-        .quick-btn { background: var(--msg-bg); border: 1px solid var(--accent); color: var(--accent); padding: 6px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; transition: 0.2s; }
-        .quick-btn:hover { background: var(--accent); color: #000; }
-        
-        .chat-input { display: flex; gap: 8px; }
-        .chat-input input { flex-grow: 1; background: var(--chat-bg); border: 1px solid #243531; border-radius: 20px; padding: 10px 15px; color: white; font-size: 13px; outline: none; }
-        .chat-input button { background: var(--accent); color: #000; border: none; padding: 10px 18px; border-radius: 20px; font-weight: 600; cursor: pointer; }
-        .chat-input button:hover { background: var(--accent-hover); }
+<title>Bot Puesto de Votación</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: simulador de chat (teléfono) a la izquierda, panel de operación de campaña a la derecha; apila en móvil */
+:root{
+  --bg:#eef1ef; --surface:#ffffff; --ink:#15302b; --muted:#5d716c; --line:#d5ddda;
+  --accent:#0f6b5c; --accent-ink:#ffffff; --gold:#d99a1e; --bubble-in:#ffffff; --bubble-out:#d7efe7;
+  --chat-bg:#e4eae7; --warn:#b4531b; --ok:#1f7a45; --chip:#f3f6f5;
+  --display:"Sora",ui-sans-serif,system-ui,sans-serif;
+  --body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1715; --surface:#16211e; --ink:#e3ece9; --muted:#93a8a2; --line:#2a3935;
+  --accent:#3fb79f; --accent-ink:#0b1513; --gold:#e8b14a; --bubble-in:#1d2a27; --bubble-out:#1c4a40;
+  --chat-bg:#111b19; --warn:#f08b52; --ok:#5cc98a; --chip:#1d2a27; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1715; --surface:#16211e; --ink:#e3ece9; --muted:#93a8a2; --line:#2a3935;
+  --accent:#3fb79f; --accent-ink:#0b1513; --gold:#e8b14a; --bubble-in:#1d2a27; --bubble-out:#1c4a40;
+  --chat-bg:#111b19; --warn:#f08b52; --ok:#5cc98a; --chip:#1d2a27; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 40px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+header h1{font-family:var(--display);font-size:clamp(1.4rem,3vw,1.9rem);margin:0;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--muted);max-width:68ch}
+.tag{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  background:var(--gold);color:#1d1503;padding:3px 8px;border-radius:4px;margin-bottom:10px;font-weight:500}
+.grid{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
 
-        /* Right Panel */
-        .panel-card { background: var(--card-bg); border-radius: 16px; padding: 25px; border: 1px solid #243531; height: 600px; overflow-y: auto; }
-        .tabs { display: flex; gap: 20px; border-bottom: 1px solid #243531; padding-bottom: 10px; margin-bottom: 20px; }
-        .tab { background: none; border: none; color: var(--text-muted); font-weight: 600; font-size: 14px; cursor: pointer; padding-bottom: 5px; }
-        .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
-        
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+/* Teléfono */
+.phone{background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:10px;box-shadow:0 10px 30px rgba(10,40,34,.12);position:sticky;top:16px}
+.screen{border-radius:20px;overflow:hidden;display:flex;flex-direction:column;height:640px;max-height:80vh;background:var(--chat-bg)}
+.bar{background:var(--accent);color:var(--accent-ink);padding:12px 14px;display:flex;align-items:center;gap:10px}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--gold);color:#1d1503;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:14px;flex:none}
+.bar b{font-family:var(--display);font-weight:600;display:block;font-size:15px}
+.bar small{opacity:.85;font-size:12px}
+.role{margin-left:auto;font-family:var(--mono);font-size:10.5px;background:rgba(255,255,255,.18);padding:3px 7px;border-radius:999px;white-space:nowrap}
+.msgs{flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:8px}
+.m{max-width:86%;padding:8px 11px;border-radius:12px;font-size:14px;line-height:1.45;word-wrap:break-word;white-space:pre-wrap}
+.m.in{background:var(--bubble-in);align-self:flex-start;border-top-left-radius:3px}
+.m.out{background:var(--bubble-out);align-self:flex-end;border-top-right-radius:3px}
+.m .t{display:block;text-align:right;font-size:10.5px;color:var(--muted);margin-top:2px;font-family:var(--mono)}
+.m a{color:var(--accent);font-weight:600}
+.card{background:var(--chip);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:6px;white-space:normal;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:13px}
+.card dt{color:var(--muted)} .card dd{margin:0;font-weight:500}
+.quick{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px 0;background:var(--chat-bg)}
+.quick button{font:inherit;font-size:13px;border:1px solid var(--accent);color:var(--accent);background:var(--surface);border-radius:999px;padding:5px 11px;cursor:pointer}
+.quick button:hover{background:var(--accent);color:var(--accent-ink)}
+form.in{display:flex;gap:8px;padding:10px;background:var(--chat-bg)}
+form.in input{flex:1;min-width:0;font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:9px 14px}
+form.in button{font:inherit;font-weight:600;border:0;border-radius:999px;background:var(--accent);color:var(--accent-ink);padding:0 16px;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
-        .info-subcard { background: var(--chat-bg); border: 1px solid #243531; border-radius: 12px; padding: 15px; }
-        .info-subcard h3 { font-size: 16px; color: var(--accent); margin-bottom: 10px; }
-        .info-subcard ul { list-style: none; }
-        .info-subcard li { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; position: relative; padding-left: 12px; }
-        .info-subcard li::before { content: "•"; color: var(--accent); position: absolute; left: 0; }
+/* Panel */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;min-width:0;overflow:hidden}
+.tabs{display:flex;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{font:inherit;font-weight:500;background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:12px 16px;cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.pane{padding:18px}
+.pane h3{font-family:var(--display);font-size:1rem;margin:0 0 4px}
+.pane p.note{color:var(--muted);margin:0 0 14px;font-size:13.5px;max-width:70ch}
+.tryrow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.try{font-family:var(--mono);font-size:12.5px;border:1px dashed var(--line);background:var(--chip);color:var(--ink);border-radius:6px;padding:6px 9px;cursor:pointer;text-align:left}
+.try small{display:block;font-family:var(--body);color:var(--muted);font-size:11px}
+.try:hover{border-color:var(--accent)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--chip);position:sticky;top:0}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr.new td{background:color-mix(in srgb,var(--gold) 18%,transparent)}
+.pill{font-family:var(--mono);font-size:10.5px;padding:2px 7px;border-radius:999px;border:1px solid currentColor}
+.pill.ok{color:var(--ok)} .pill.warn{color:var(--warn)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.stat b{font-family:var(--display);font-size:1.4rem;display:block;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:12px}
+.log{font-family:var(--mono);font-size:12.5px;display:flex;flex-direction:column;gap:0}
+.log div{padding:7px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:70px 120px 1fr;gap:10px}
+.log .who{color:var(--accent)} .log .deny{color:var(--warn)}
+@media (max-width:520px){.log div{grid-template-columns:60px 1fr}.log div span:nth-child(3){grid-column:1/-1}}
+.flow{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.flow section{border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.flow h4{margin:0 0 6px;font-family:var(--display);font-size:.95rem}
+.flow ul{margin:0;padding-left:18px;color:var(--muted);font-size:13.5px}
+.flow li{margin:3px 0}
+@media (prefers-reduced-motion:no-preference){.m{animation:pop .18s ease-out}@keyframes pop{from{transform:translateY(4px);opacity:.4}to{transform:none;opacity:1}}}
+</style>
 
-        /* DB Table */
-        .db-table-container { overflow-x: auto; max-height: 450px; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
-        th, td { padding: 10px; border-bottom: 1px solid #243531; }
-        th { background: var(--chat-bg); color: var(--accent); position: sticky; top: 0; }
-        tr:hover { background: var(--msg-bg); }
+<div class="wrap">
+  <header>
+    <span class="tag">Demo · datos ficticios</span>
+    <h1>Bot de consulta de puesto de votación</h1>
+    <p>Simulación del bot de campaña con una base inventada de 24 simpatizantes en Soacha y Bosa. Pruebe los tres perfiles: ciudadano (solo ve su propio puesto), líder (ve solo su red) y coordinador (ve todo). Cada consulta queda en el registro de auditoría.</p>
+  </header>
 
-        .cedula-chip { background: var(--msg-bg); border: 1px solid var(--accent); color: var(--accent); padding: 5px 10px; border-radius: 6px; display: inline-block; margin: 4px; cursor: pointer; font-size: 12px; }
-        .cedula-chip:hover { background: var(--accent); color: #000; }
-    </style>
-</head>
-<body>
-
-<header>
-    <span class="badge">DEMO • DATOS REALES SOACHA</span>
-    <h1>Bot de consulta de puesto de votaci&oacute;n</h1>
-    <p class="subtitle">Simulaci&oacute;n interactiva del bot de campa&ntilde;a conectado con la base de datos de puestos de votaci&oacute;n de Soacha. Pruebe ingresando un n&uacute;mero de c&eacute;dula en la simulaci&oacute;n del chat.</p>
-</header>
-
-<div class="main-container">
-    <!-- Chat Simulator -->
-    <div class="chat-card">
-        <div class="chat-header">
-            <div style="display:flex; align-items:center;">
-                <div class="avatar">27</div>
-                <div class="bot-info">
-                    <h4>Campa&ntilde;a Soacha 2027</h4>
-                    <small>bot &bull; en l&iacute;nea</small>
-                </div>
-            </div>
-            <span class="role-tag">Ciudadano</span>
+  <div class="grid">
+    <div class="phone" aria-label="Simulador del chat">
+      <div class="screen">
+        <div class="bar">
+          <div class="avatar">27</div>
+          <div><b>Campaña Soacha 2027</b><small>bot · en línea</small></div>
+          <span class="role" id="roleBadge">Ciudadano</span>
         </div>
-
-        <div class="chat-body" id="chatBody">
-            <div class="msg bot">
-                Hola &#128075; Soy el asistente de la campa&ntilde;a. Le ayudo a encontrar su puesto de votaci&oacute;n.
-                <span class="time">01:17 p. m.</span>
-            </div>
-            <div class="msg bot">
-                &iquest;Qu&eacute; desea hacer?<br>
-                1. Consultar mi puesto de votaci&oacute;n<br>
-                2. Soy l&iacute;der o coordinador<br>
-                3. Pol&iacute;tica de datos
-                <span class="time">01:17 p. m.</span>
-            </div>
-        </div>
-
-        <div class="chat-buttons">
-            <button class="quick-btn" onclick="seleccionarOpcion('1. Mi puesto')">1. Mi puesto</button>
-            <button class="quick-btn" onclick="seleccionarOpcion('2. Soy l&iacute;der')">2. Soy l&iacute;der</button>
-            <button class="quick-btn" onclick="seleccionarOpcion('3. Pol&iacute;tica de datos')">3. Pol&iacute;tica de datos</button>
-        </div>
-
-        <div class="chat-input">
-            <input type="text" id="userInput" placeholder="Escriba un mensaje o c&eacute;dula..." onkeypress="handleKeyPress(event)">
-            <button onclick="sendMessage()">Enviar</button>
-        </div>
+        <div class="msgs" id="msgs" aria-live="polite"></div>
+        <div class="quick" id="quick"></div>
+        <form class="in" id="form" autocomplete="off">
+          <input id="txt" placeholder="Escriba un mensaje" aria-label="Mensaje">
+          <button type="submit">Enviar</button>
+        </form>
+      </div>
     </div>
 
-    <!-- Right Information Panel -->
-    <div class="panel-card">
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('como-funciona', this)">C&oacute;mo funciona</button>
-            <button class="tab" onclick="switchTab('probar', this)">Probar</button>
-            <button class="tab" onclick="switchTab('base-datos', this)">Base de datos</button>
-            <button class="tab" onclick="switchTab('auditoria', this)">Auditor&iacute;a</button>
-        </div>
+    <div class="panel">
+      <div class="tabs" role="tablist">
+        <button role="tab" aria-selected="true" data-tab="prueba" id="tab-prueba">Probar</button>
+        <button role="tab" aria-selected="false" data-tab="base" id="tab-base">Base de datos</button>
+        <button role="tab" aria-selected="false" data-tab="audit" id="tab-audit">Auditoría</button>
+        <button role="tab" aria-selected="false" data-tab="como" id="tab-como">Cómo funciona</button>
+      </div>
 
-        <!-- TAB 1: COMO FUNCIONA -->
-        <div id="como-funciona" class="tab-content active">
-            <div class="cards-grid">
-                <div class="info-subcard">
-                    <h3>Ciudadano</h3>
-                    <ul>
-                        <li>Consulta solo su propia c&eacute;dula.</li>
-                        <li>Ve puesto, mesa, direcci&oacute;n, ciudad y barrio.</li>
-                        <li>Acceso directo al mapa en Google Maps.</li>
-                        <li>Aceptaci&oacute;n previa de pol&iacute;tica de datos.</li>
-                    </ul>
-                </div>
-                <div class="info-subcard">
-                    <h3>L&iacute;der</h3>
-                    <ul>
-                        <li>Ingresa con PIN personal.</li>
-                        <li>Ve datos completos solo de su red de referidos.</li>
-                        <li>Agrupaci&oacute;n por puesto &uacute;til para log&iacute;stica.</li>
-                    </ul>
-                </div>
-                <div class="info-subcard">
-                    <h3>Coordinaci&oacute;n</h3>
-                    <ul>
-                        <li>Acceso a toda la base general.</li>
-                        <li>Resumen de simpatizantes por puesto.</li>
-                        <li>Revisa el registro de auditor&iacute;a.</li>
-                    </ul>
-                </div>
-                <div class="info-subcard" style="grid-column: span 3;">
-                    <h3>Producci&oacute;n</h3>
-                    <ul>
-                        <li>Backend integrado con Telegram Bot API + FastAPI.</li>
-                        <li>Base de datos PostgreSQL.</li>
-                        <li>Carga masiva directa desde archivos Excel de l&iacute;deres.</li>
-                    </ul>
-                </div>
-            </div>
+      <div class="pane" data-pane="prueba">
+        <h3>Cédulas registradas</h3>
+        <p class="note">Toque una para escribirla en el chat. Primero elija la opción del menú que corresponda.</p>
+        <div class="tryrow" id="tryCed"></div>
+        <h3>Cédula no registrada</h3>
+        <p class="note">Muestra el flujo de registro con autorización de datos.</p>
+        <div class="tryrow"><button class="try" data-fill="1033998877">1033998877<small>sin registro</small></button></div>
+        <h3>PIN de acceso</h3>
+        <p class="note">Use la opción "Soy líder" del menú.</p>
+        <div class="tryrow">
+          <button class="try" data-fill="1234">1234<small>Líder Marta Peña</small></button>
+          <button class="try" data-fill="5678">5678<small>Líder Jorge Cuéllar</small></button>
+          <button class="try" data-fill="9999">9999<small>Coordinación</small></button>
         </div>
+      </div>
 
-        <!-- TAB 2: PROBAR -->
-        <div id="probar" class="tab-content">
-            <h3 style="color:var(--accent); margin-bottom:10px;">C&eacute;dulas de Prueba (Soacha)</h3>
-            <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px;">Haga clic en cualquiera de las siguientes c&eacute;dulas para probar la consulta automatizada en el chat:</p>
-            <div>
-                <span class="cedula-chip" onclick="probarCedula('2986631')">2986631</span>
-                <span class="cedula-chip" onclick="probarCedula('1073693454')">1073693454</span>
-                <span class="cedula-chip" onclick="probarCedula('1033723563')">1033723563</span>
-                <span class="cedula-chip" onclick="probarCedula('11324571')">11324571</span>
-                <span class="cedula-chip" onclick="probarCedula('1109264322')">1109264322</span>
-            </div>
-        </div>
+      <div class="pane" data-pane="base" hidden>
+        <div class="stats" id="stats"></div>
+        <div class="tbl" style="max-height:440px;overflow:auto"><table>
+          <thead><tr><th>Cédula</th><th>Nombre</th><th>Barrio residencia</th><th>Puesto</th><th>Mesa</th><th>Ciudad</th><th>Líder</th><th>Autoriz.</th></tr></thead>
+          <tbody id="dbBody"></tbody>
+        </table></div>
+      </div>
 
-        <!-- TAB 3: BASE DE DATOS -->
-        <div id="base-datos" class="tab-content">
-            <h3 style="color:var(--accent); margin-bottom:10px;">Registros de Votantes (Soacha)</h3>
-            <div class="db-table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>C&eacute;dula</th>
-                            <th>Municipio</th>
-                            <th>Puesto</th>
-                            <th>Mesa</th>
-                            <th>Direcci&oacute;n</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>2986631</td><td>SOACHA</td><td>I.E. SOACHA AVANZA LA UNIDAD</td><td>1</td><td>CRA 38 No 14 - 72</td><td>Confirmado</td></tr>
-                        <tr><td>1073693454</td><td>SOACHA</td><td>COLEGIO MINUTO DE DIOS CIUDAD VERDE</td><td>37</td><td>CALLE 38 No 31 141 CIUDAD VERDE</td><td>Confirmado</td></tr>
-                        <tr><td>1033723563</td><td>SOACHA</td><td>I.E. LICEO MAYOR DE SOACHA</td><td>23</td><td>CLL. 38 No. 6 A - 55 ESTE</td><td>Confirmado</td></tr>
-                        <tr><td>11324571</td><td>GIRARDOT</td><td>COLEGIO AMERICANO</td><td>8</td><td>CALLE 21 No. 10-40</td><td>Confirmado</td></tr>
-                        <tr><td>1109264322</td><td>SOACHA</td><td>CENTRO COMERCIAL MERCURIO</td><td>31</td><td>CRA 7 NRO 32 35</td><td>Confirmado</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+      <div class="pane" data-pane="audit" hidden>
+        <h3>Registro de auditoría</h3>
+        <p class="note">Cada consulta queda registrada con perfil, cédula consultada y resultado. Exigido por la Ley 1581 para demostrar uso legítimo de los datos.</p>
+        <div class="log" id="log"></div>
+      </div>
 
-        <!-- TAB 4: AUDITORIA -->
-        <div id="auditoria" class="tab-content">
-            <h3 style="color:var(--accent); margin-bottom:10px;">Registro de Auditor&iacute;a (Ley 1581)</h3>
-            <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px;">Cada consulta queda registrada en la base de datos para demostrar el uso leg&iacute;timo de la informaci&oacute;n:</p>
-            <div class="db-table-container">
-                <table id="auditTable">
-                    <thead>
-                        <tr>
-                            <th>Fecha/Hora</th>
-                            <th>Perfil</th>
-                            <th>C&eacute;dula Consultada</th>
-                            <th>Resultado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>21/10/2026 01:17 p. m.</td><td>Ciudadano</td><td>2986631</td><td>Exitosa</td></tr>
-                    </tbody>
-                </table>
-            </div>
+      <div class="pane" data-pane="como" hidden>
+        <div class="flow">
+          <section><h4>Ciudadano</h4><ul>
+            <li>Consulta solo su propia cédula.</li>
+            <li>Ve puesto, mesa, dirección, ciudad y barrio del puesto.</li>
+            <li>Su nombre aparece enmascarado.</li>
+            <li>Si no está, puede registrarse aceptando la política de datos.</li></ul></section>
+          <section><h4>Líder</h4><ul>
+            <li>Ingresa con PIN personal.</li>
+            <li>Ve datos completos solo de su red de referidos.</li>
+            <li>Lista sus referidos agrupados por puesto, útil para transporte el día D.</li></ul></section>
+          <section><h4>Coordinación</h4><ul>
+            <li>Acceso a toda la base.</li>
+            <li>Resumen de simpatizantes por puesto de votación.</li>
+            <li>Revisa la auditoría.</li></ul></section>
+          <section><h4>Producción</h4><ul>
+            <li>Backend FastAPI + PostgreSQL.</li>
+            <li>Canal: bot de Telegram o web app compartida por WhatsApp.</li>
+            <li>Carga masiva desde Excel de los líderes.</li>
+            <li>PIN reemplazado por login con teléfono verificado.</li></ul></section>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <script>
-    function switchTab(tabId, element) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        
-        element.classList.add('active');
-        document.getElementById(tabId).classList.add('active');
-    }
+const PUESTOS={
+  P1:{n:"IE Ciudad Verde Sede A",d:"Cra 34 # 12-05",b:"Ciudad Verde",c:"Soacha"},
+  P2:{n:"Colegio Compartir",d:"Cl 31 # 4-20",b:"Compartir",c:"Soacha"},
+  P3:{n:"IE San Mateo",d:"Cra 4 # 32-10",b:"San Mateo",c:"Soacha"},
+  P4:{n:"Coliseo León XIII",d:"Cl 13 # 7-40",b:"León XIII",c:"Soacha"},
+  P5:{n:"IE Ciudadela Sucre",d:"Cl 2 # 18-60",b:"Ciudadela Sucre",c:"Soacha"},
+  P6:{n:"Colegio Bosa Centro",d:"Cra 80 # 61-15 Sur",b:"Bosa Centro",c:"Bogotá"}
+};
+const LIDERES={"1234":{id:"L1",n:"Marta Rocío Peña",rol:"lider"},"5678":{id:"L2",n:"Jorge Iván Cuéllar",rol:"lider"},"9999":{id:"CO",n:"Coordinación",rol:"coord"}};
+const LNAME={L1:"Marta Peña",L2:"Jorge Cuéllar"};
+const raw=[
+["1012456789","Ana Lucía Ramírez Torres","Ciudad Verde","P1",12,"L1","3104567812"],
+["52384901","Blanca Inés Moreno Gil","Ciudad Verde","P1",12,"L1","3157781203"],
+["79856214","Carlos Andrés Suárez Pinto","Ciudad Verde","P1",14,"L1","3001245789"],
+["1023877412","Daniela Rojas Beltrán","Ciudad Verde","P1",9,"L1","3209988714"],
+["1019234567","Edwin Fabián Gómez Ruiz","Compartir","P2",3,"L1","3115566001"],
+["39712845","Flor Alba Quintero Díaz","Compartir","P2",5,"L1","3124478521"],
+["80123456","Germán Darío Vargas León","Compartir","P2",3,"L1","3168890011"],
+["1030667788","Heidy Paola Cárdenas Mora","San Mateo","P3",7,"L1","3013322110"],
+["1016789012","Iván Camilo Herrera Sanz","San Mateo","P3",7,"L1","3045566778"],
+["52901234","Johana Patricia Ríos Vélez","León XIII","P4",2,"L1","3186677889"],
+["1022345678","Kevin Steven Ortiz Parra","León XIII","P4",4,"L2","3219988776"],
+["41678902","Luz Marina Castro Pardo","León XIII","P4",4,"L2","3107766554"],
+["79345678","Manuel Antonio Silva Rey","San Mateo","P3",8,"L2","3134455667"],
+["1014556677","Natalia Andrea Muñoz Gil","Ciudadela Sucre","P5",1,"L2","3025544332"],
+["1028998877","Óscar Javier Ramos Peña","Ciudadela Sucre","P5",1,"L2","3176655443"],
+["51234987","Patricia Elena Duarte Sol","Ciudadela Sucre","P5",3,"L2","3143322119"],
+["1031122334","Ricardo Alfonso Mejía Cruz","Ciudadela Sucre","P5",2,"L2","3058877665"],
+["1007654321","Sandra Milena Acosta Lara","Bosa Centro","P6",21,"L2","3192233445"],
+["80456123","Tomás Enrique Barón Niño","Bosa Centro","P6",21,"L2","3009988112"],
+["1020998811","Valentina Ospina Reyes","Ciudad Verde","P1",15,"L2","3226677881"],
+["1026554433","Wilson Arley Pérez Tovar","Compartir","P2",6,"L2","3114433226"],
+["39876543","Yolanda Sofía Méndez Arias","San Mateo","P3",9,"L1","3165544337"],
+["1018223344","Zulma Viviana Rincón Ibáñez","León XIII","P4",2,"L1","3037788990"],
+["1024667711","Andrés Felipe Lozano Cano","Bosa Centro","P6",19,"L1","3201122334"]
+];
+const DB=raw.map(r=>({ced:r[0],nom:r[1],bar:r[2],p:r[3],mesa:r[4],lid:r[5],tel:r[6],aut:true,nuevo:false}));
 
-    function sendMessage() {
-        const input = document.getElementById('userInput');
-        const text = input.value.trim();
-        if (!text) return;
+const $=s=>document.querySelector(s);
+const msgs=$("#msgs"),quick=$("#quick"),txt=$("#txt");
+let state="menu",user={rol:"ciudadano",id:null,n:null},reg={};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const now=()=>new Date().toLocaleTimeString("es-CO",{hour:"2-digit",minute:"2-digit"});
+const mask=n=>n.split(" ").map((w,i)=>i===0?w:w[0]+"***").join(" ");
+const mapUrl=p=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(p.d+", "+p.c+", Cundinamarca");
 
-        addMessage(text, 'user');
-        input.value = '';
+function add(html,who="in"){
+  const d=document.createElement("div");d.className="m "+who;
+  d.innerHTML=html+`<span class="t">${now()}</span>`;
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+}
+function bot(html,opts,delay=380){setTimeout(()=>{add(html,"in");setQuick(opts||[])},delay)}
+function setQuick(opts){quick.innerHTML="";opts.forEach(o=>{const b=document.createElement("button");b.type="button";b.textContent=o;b.onclick=()=>send(o);quick.appendChild(b)})}
+function badge(){ $("#roleBadge").textContent=user.rol==="ciudadano"?"Ciudadano":user.rol==="lider"?"Líder · "+user.n.split(" ")[0]:"Coordinación"}
 
-        setTimeout(() => {
-            if (/^\d+$/.test(text)) {
-                addMessage("&#128269; Buscando en la base de datos de Soacha...\n\n&#128205; *Puesto Encontrado*\n&bull; C&eacute;dula: " + text + "\n&bull; Puesto: COLEGIO MINUTO DE DIOS CIUDAD VERDE\n&bull; Mesa: 37\n&bull; Direcci&oacute;n: CALLE 38 No 31 141\n&bull; Municipio: SOACHA\n\n&#128506;&#65039; https://www.google.com/maps?q=4.606188,-74.213060", 'bot');
-                registrarAuditoria(text, "Exitosa");
-            } else {
-                addMessage("Por favor ingrese su n&uacute;mero de C&eacute;dula sin puntos ni espacios.", 'bot');
-            }
-        }, 600);
-    }
+const logEl=$("#log");const logs=[];
+function audit(accion,ced,ok){
+  logs.unshift({t:now(),who:user.rol==="ciudadano"?"Ciudadano":user.n,accion,ced,ok});
+  logEl.innerHTML=logs.map(l=>`<div><span>${l.t}</span><span class="${l.ok?"who":"deny"}">${esc(l.who)}</span><span>${esc(l.accion)}${l.ced?" · "+esc(l.ced):""}${l.ok?"":" · denegado"}</span></div>`).join("")||"";
+}
 
-    function probarCedula(cedula) {
-        document.getElementById('userInput').value = cedula;
-        sendMessage();
-    }
+function puestoCard(r,full){
+  const p=PUESTOS[r.p];
+  return `<dl class="card">
+  <dt>Nombre</dt><dd>${esc(full?r.nom:mask(r.nom))}</dd>
+  ${full?`<dt>Cédula</dt><dd>${r.ced}</dd><dt>Teléfono</dt><dd>${r.tel}</dd><dt>Residencia</dt><dd>${esc(r.bar)}</dd>`:""}
+  <dt>Puesto</dt><dd>${esc(p.n)}</dd>
+  <dt>Mesa</dt><dd>${r.mesa||"Por confirmar"}</dd>
+  <dt>Dirección</dt><dd>${esc(p.d)}</dd>
+  <dt>Barrio</dt><dd>${esc(p.b)}</dd>
+  <dt>Ciudad</dt><dd>${esc(p.c)}</dd>
+  ${full?`<dt>Líder</dt><dd>${esc(LNAME[r.lid]||"Auto-registro")}</dd>`:""}
+  </dl><a href="${mapUrl(p)}" target="_blank" rel="noopener">Ver en el mapa</a>`;
+}
 
-    function registrarAuditoria(cedula, resultado) {
-        const tbody = document.querySelector('#auditTable tbody');
-        const tr = document.createElement('tr');
-        const now = new Date().toLocaleString();
-        tr.innerHTML = <td></td><td>Ciudadano</td><td></td><td></td>;
-        tbody.prepend(tr);
-    }
+function menu(){
+  state="menu";
+  if(user.rol==="ciudadano"){
+    bot("¿Qué desea hacer?\n1. Consultar mi puesto de votación\n2. Soy líder o coordinador\n3. Política de datos",["1. Mi puesto","2. Soy líder","3. Política de datos"]);
+  }else{
+    state="lmenu";
+    const extra=user.rol==="coord"?["Resumen por puesto"]:["Mis referidos"];
+    bot(`Menú de ${user.rol==="coord"?"coordinación":"líder"}:\n• Consultar cédula\n• ${extra[0]}\n• Salir`,["Consultar cédula",...extra,"Salir"]);
+  }
+}
 
-    function seleccionarOpcion(opcion) {
-        addMessage(opcion, 'user');
-        setTimeout(() => {
-            if (opcion.includes('1.')) {
-                addMessage("Por favor ingrese su n&uacute;mero de C&eacute;dula (NUIP):", 'bot');
-            } else if (opcion.includes('2.')) {
-                addMessage("Por favor ingrese su PIN de acceso de L&iacute;der/Coordinador:", 'bot');
-            } else {
-                addMessage("Conforme a la Ley 1581 de 2012, sus datos son tratados de forma confidencial &uacute;nicamente para fines de la campa&ntilde;a.", 'bot');
-            }
-        }, 500);
-    }
+function send(raw){
+  const v=raw.trim(); if(!v)return;
+  add(esc(v),"out"); txt.value=""; setQuick([]);
+  const low=v.toLowerCase(), digits=v.replace(/\D/g,"");
+  if(["menu","menú","hola","inicio"].includes(low)){menu();return}
 
-    function addMessage(text, sender) {
-        const chatBody = document.getElementById('chatBody');
-        const msgDiv = document.createElement('div');
-        msgDiv.className = msg ;
-        
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
-        msgDiv.innerHTML = text.replace(/\n/g, '<br>') + <span class="time"></span>;
-        chatBody.appendChild(msgDiv);
-        chatBody.scrollTop = chatBody.scrollHeight;
-    }
+  switch(state){
+    case "menu":
+      if(low.startsWith("1")||low.includes("puesto")){state="cced";bot("Escriba su número de cédula, sin puntos ni espacios.")}
+      else if(low.startsWith("2")||low.includes("líder")||low.includes("lider")){state="pin";bot("Escriba su PIN de acceso.")}
+      else if(low.startsWith("3")||low.includes("política")||low.includes("politica")){
+        bot("Sus datos se usan solo para informarle su puesto de votación y coordinar la logística de la campaña, según la Ley 1581 de 2012. Puede pedir que los borremos escribiendo BORRAR en cualquier momento. (En el demo no se borra nada.)");menu()}
+      else{bot("No entendí esa opción.");menu()}
+      break;
 
-    function handleKeyPress(e) {
-        if (e.key === 'Enter') sendMessage();
-    }
+    case "cced":{
+      if(!/^\d{6,10}$/.test(digits)){bot("La cédula debe tener entre 6 y 10 números. Intente de nuevo.");return}
+      const r=DB.find(x=>x.ced===digits);
+      if(r){audit("Consulta propia",digits,true);
+        bot("Este es su lugar de votación:"+puestoCard(r,false)+"\n\nLleve su cédula original. Escriba MENÚ para volver.",["Menú"]);state="menu";}
+      else{audit("Consulta propia (no registrada)",digits,true);reg={ced:digits};
+        bot("Esa cédula no está en nuestra base. Puede confirmar su puesto oficial en <a href=\"https://www.registraduria.gov.co\" target=\"_blank\" rel=\"noopener\">registraduria.gov.co</a> (Infovotantes).\n\n¿Quiere registrarse como simpatizante?",["Sí, registrarme","No, gracias"]);state="regq";}
+      break;}
+
+    case "regq":
+      if(low.startsWith("s")){state="rname";bot("Escriba su nombre completo.")}
+      else{bot("Listo, gracias.");menu()}
+      break;
+    case "rname":
+      if(v.length<5){bot("Escriba nombre y apellido.");return}
+      reg.nom=v;state="rbar";bot("¿En qué barrio vive?",["Ciudad Verde","Compartir","San Mateo","León XIII","Ciudadela Sucre"]);break;
+    case "rbar":
+      reg.bar=v;state="rpuesto";bot("¿Dónde vota? Elija el puesto que le muestra Infovotantes:",Object.keys(PUESTOS).map(k=>PUESTOS[k].n));break;
+    case "rpuesto":{
+      const k=Object.keys(PUESTOS).find(k=>PUESTOS[k].n.toLowerCase()===low);
+      if(!k){bot("Elija uno de los puestos de la lista.",Object.keys(PUESTOS).map(k=>PUESTOS[k].n));return}
+      reg.p=k;state="rcons";
+      bot("Último paso. ¿Autoriza a la campaña a tratar sus datos (nombre, cédula, barrio y puesto) para informarle y coordinar la jornada electoral, conforme a la Ley 1581 de 2012?",["Sí, autorizo","No autorizo"]);break;}
+    case "rcons":
+      if(low.startsWith("s")){
+        const r={ced:reg.ced,nom:reg.nom,bar:reg.bar,p:reg.p,mesa:0,lid:null,tel:"—",aut:true,nuevo:true};
+        DB.push(r);renderDB();audit("Registro nuevo con autorización",r.ced,true);
+        bot("Registro guardado. Un líder de su sector confirmará su mesa."+puestoCard(r,false),["Menú"]);state="menu";
+      }else{audit("Registro rechazado (sin autorización)",reg.ced,false);bot("Entendido. No guardamos ningún dato suyo.");menu()}
+      break;
+
+    case "pin":{
+      const L=LIDERES[digits];
+      if(!L){audit("PIN inválido",null,false);bot("PIN incorrecto.");menu();return}
+      user={rol:L.rol,id:L.id,n:L.n};badge();audit("Inicio de sesión",null,true);
+      bot(`Bienvenido(a), ${esc(L.n)}.`);menu();break;}
+
+    case "lmenu":
+      if(low.includes("consultar")){state="lced";bot("Escriba la cédula a consultar.")}
+      else if(low.includes("referidos")){
+        const mine=DB.filter(x=>x.lid===user.id);audit("Lista de referidos",null,true);
+        const by={};mine.forEach(x=>{(by[x.p]=by[x.p]||[]).push(x)});
+        let h=`Su red: <b>${mine.length}</b> personas.\n`;
+        Object.keys(by).forEach(k=>{h+=`\n<b>${esc(PUESTOS[k].n)}</b> (${by[k].length})\n`+by[k].map(x=>`  · ${esc(x.nom.split(" ").slice(0,2).join(" "))} — mesa ${x.mesa}`).join("\n")});
+        bot(h);menu();
+      }else if(low.includes("resumen")){
+        audit("Resumen por puesto",null,true);
+        let h="Simpatizantes por puesto:\n";
+        Object.keys(PUESTOS).forEach(k=>{const n=DB.filter(x=>x.p===k).length;h+=`\n${esc(PUESTOS[k].n)}: <b>${n}</b>`});
+        h+=`\n\nTotal: <b>${DB.length}</b>`;bot(h);menu();
+      }else if(low.includes("salir")){audit("Cierre de sesión",null,true);user={rol:"ciudadano",id:null,n:null};badge();bot("Sesión cerrada.");menu()}
+      else{bot("Elija una opción del menú.");menu()}
+      break;
+
+    case "lced":{
+      if(!/^\d{6,10}$/.test(digits)){bot("Cédula no válida.");return}
+      const r=DB.find(x=>x.ced===digits);
+      if(!r){audit("Consulta de cédula",digits,true);bot("No está en la base.");menu();return}
+      if(user.rol==="lider"&&r.lid!==user.id){audit("Consulta fuera de su red",digits,false);
+        bot("Esta persona no pertenece a su red de referidos. Por protección de datos no se muestra la información.");menu();return}
+      audit("Consulta de cédula",digits,true);bot("Datos completos:"+puestoCard(r,true));menu();break;}
+  }
+}
+
+$("#form").addEventListener("submit",e=>{e.preventDefault();send(txt.value)});
+
+function renderDB(){
+  $("#dbBody").innerHTML=DB.map(r=>`<tr class="${r.nuevo?"new":""}"><td class="num">${r.ced}</td><td>${esc(r.nom)}</td><td>${esc(r.bar)}</td><td>${esc(PUESTOS[r.p].n)}</td><td class="num">${r.mesa||"—"}</td><td>${PUESTOS[r.p].c}</td><td>${esc(LNAME[r.lid]||"Auto-registro")}</td><td><span class="pill ok">Sí</span></td></tr>`).join("");
+  const n1=DB.filter(x=>x.lid==="L1").length,n2=DB.filter(x=>x.lid==="L2").length,nn=DB.filter(x=>!x.lid).length;
+  $("#stats").innerHTML=`<div class="stat"><b>${DB.length}</b><span>Simpatizantes</span></div><div class="stat"><b>${Object.keys(PUESTOS).length}</b><span>Puestos de votación</span></div><div class="stat"><b>${n1} / ${n2}</b><span>Red Marta / Jorge</span></div><div class="stat"><b>${nn}</b><span>Auto-registros nuevos</span></div>`;
+}
+renderDB();
+
+$("#tryCed").innerHTML=DB.slice(0,24).filter((_,i)=>[0,4,9,10,13,17].includes(i)).map(r=>`<button class="try" data-fill="${r.ced}">${r.ced}<small>${esc(r.nom.split(" ")[0])} · red ${LNAME[r.lid].split(" ")[0]}</small></button>`).join("");
+document.addEventListener("click",e=>{const b=e.target.closest("[data-fill]");if(b){txt.value=b.dataset.fill;txt.focus()}});
+
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected",x===b));
+  document.querySelectorAll(".pane").forEach(p=>p.hidden=p.dataset.pane!==b.dataset.tab);
+});
+
+add("Hola 👋 Soy el asistente de la campaña. Le ayudo a encontrar su puesto de votación.","in");
+menu();
 </script>
-
-</body>
-</html>
