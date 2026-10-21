@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bot de Telegram - Consulta de Puesto de Votación</title>
+    <title>Bot de Telegram - Consulta de Puesto de VotaciÃ³n</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -60,15 +60,15 @@
         .info-subcard h3 { font-size: 16px; color: var(--accent); margin-bottom: 10px; }
         .info-subcard ul { list-style: none; }
         .info-subcard li { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; position: relative; padding-left: 12px; }
-        .info-subcard li::before { content: "•"; color: var(--accent); position: absolute; left: 0; }
+        .info-subcard li::before { content: "â€¢"; color: var(--accent); position: absolute; left: 0; }
     </style>
 </head>
 <body>
 
 <header>
-    <span class="badge">DEMO • DATOS REALES SOACHA</span>
-    <h1>Bot de consulta de puesto de votación</h1>
-    <p class="subtitle">Simulación interactiva del bot de campaña conectado con la base de datos de puestos de votación de Soacha. Pruebe ingresando un número de cédula en la simulación del chat.</p>
+    <span class="badge">DEMO â€¢ DATOS REALES SOACHA</span>
+    <h1>Bot de consulta de puesto de votaci&oacute;n</h1>
+    <p class="subtitle">Simulaci&oacute;n interactiva del bot de campa&ntilde;a conectado con la base de datos de puestos de votaci&oacute;n de Soacha. Pruebe ingresando un n&uacute;mero de c&eacute;dula en la simulaci&oacute;n del chat.</p>
 </header>
 
 <div class="main-container">
@@ -78,8 +78,8 @@
             <div style="display:flex; align-items:center;">
                 <div class="avatar">27</div>
                 <div class="bot-info">
-                    <h4>Campaña Soacha 2027</h4>
-                    <small>bot • en línea</small>
+                    <h4>Campa&ntilde;a Soacha 2027</h4>
+                    <small>bot &bull; en l&iacute;nea</small>
                 </div>
             </div>
             <span class="role-tag">Ciudadano</span>
@@ -87,26 +87,26 @@
 
         <div class="chat-body" id="chatBody">
             <div class="msg bot">
-                Hola ?? Soy el asistente de la campaña. Le ayudo a encontrar su puesto de votación.
+                Hola &#128075; Soy el asistente de la campa&ntilde;a. Le ayudo a encontrar su puesto de votaci&oacute;n.
                 <span class="time">01:17 p. m.</span>
             </div>
             <div class="msg bot">
-                ¿Qué desea hacer?<br>
-                1. Consultar mi puesto de votación<br>
-                2. Soy líder o coordinador<br>
-                3. Política de datos
+                &iquest;Qu&eacute; desea hacer?<br>
+                1. Consultar mi puesto de votaci&oacute;n<br>
+                2. Soy l&iacute;der o coordinador<br>
+                3. Pol&iacute;tica de datos
                 <span class="time">01:17 p. m.</span>
             </div>
         </div>
 
         <div class="chat-buttons">
             <button class="quick-btn" onclick="seleccionarOpcion('1. Mi puesto')">1. Mi puesto</button>
-            <button class="quick-btn" onclick="seleccionarOpcion('2. Soy líder')">2. Soy líder</button>
-            <button class="quick-btn" onclick="seleccionarOpcion('3. Política de datos')">3. Política de datos</button>
+            <button class="quick-btn" onclick="seleccionarOpcion('2. Soy l&iacute;der')">2. Soy l&iacute;der</button>
+            <button class="quick-btn" onclick="seleccionarOpcion('3. Pol&iacute;tica de datos')">3. Pol&iacute;tica de datos</button>
         </div>
 
         <div class="chat-input">
-            <input type="text" id="userInput" placeholder="Escriba un mensaje o cédula..." onkeypress="handleKeyPress(event)">
+            <input type="text" id="userInput" placeholder="Escriba un mensaje o c&eacute;dula..." onkeypress="handleKeyPress(event)">
             <button onclick="sendMessage()">Enviar</button>
         </div>
     </div>
@@ -114,44 +114,44 @@
     <!-- Right Information Panel -->
     <div class="panel-card">
         <div class="tabs">
-            <button class="tab active">Cómo funciona</button>
+            <button class="tab active">C&oacute;mo funciona</button>
             <button class="tab">Probar</button>
             <button class="tab">Base de datos</button>
-            <button class="tab">Auditoría</button>
+            <button class="tab">Auditor&iacute;a</button>
         </div>
 
         <div class="cards-grid">
             <div class="info-subcard">
                 <h3>Ciudadano</h3>
                 <ul>
-                    <li>Consulta solo su propia cédula.</li>
-                    <li>Ve puesto, mesa, dirección, ciudad y barrio.</li>
+                    <li>Consulta solo su propia c&eacute;dula.</li>
+                    <li>Ve puesto, mesa, direcci&oacute;n, ciudad y barrio.</li>
                     <li>Acceso directo al mapa en Google Maps.</li>
-                    <li>Aceptación previa de política de datos.</li>
+                    <li>Aceptaci&oacute;n previa de pol&iacute;tica de datos.</li>
                 </ul>
             </div>
             <div class="info-subcard">
-                <h3>Líder</h3>
+                <h3>L&iacute;der</h3>
                 <ul>
                     <li>Ingresa con PIN personal.</li>
                     <li>Ve datos completos solo de su red de referidos.</li>
-                    <li>Agrupación por puesto útil para logística.</li>
+                    <li>Agrupaci&oacute;n por puesto &uacute;til para log&iacute;stica.</li>
                 </ul>
             </div>
             <div class="info-subcard">
-                <h3>Coordinación</h3>
+                <h3>Coordinaci&oacute;n</h3>
                 <ul>
                     <li>Acceso a toda la base general.</li>
                     <li>Resumen de simpatizantes por puesto.</li>
-                    <li>Revisa el registro de auditoría.</li>
+                    <li>Revisa el registro de auditor&iacute;a.</li>
                 </ul>
             </div>
             <div class="info-subcard" style="grid-column: span 3;">
-                <h3>Producción</h3>
+                <h3>Producci&oacute;n</h3>
                 <ul>
                     <li>Backend integrado con Telegram Bot API + FastAPI.</li>
                     <li>Base de datos PostgreSQL.</li>
-                    <li>Carga masiva directa desde archivos Excel de líderes.</li>
+                    <li>Carga masiva directa desde archivos Excel de l&iacute;deres.</li>
                 </ul>
             </div>
         </div>
@@ -169,9 +169,9 @@
 
         setTimeout(() => {
             if (/^\d+$/.test(text)) {
-                addMessage("?? Buscando en la base de datos de Soacha...\n\n?? *Puesto Encontrado*\n• Cédula: " + text + "\n• Puesto: COLEGIO MINUTO DE DIOS CIUDAD VERDE\n• Mesa: 37\n• Dirección: CALLE 38 No 31 141\n• Municipio: SOACHA\n\n??? https://www.google.com/maps?q=4.606188,-74.213060", 'bot');
+                addMessage("&#128269; Buscando en la base de datos de Soacha...\n\n&#128205; *Puesto Encontrado*\n&bull; C&eacute;dula: " + text + "\n&bull; Puesto: COLEGIO MINUTO DE DIOS CIUDAD VERDE\n&bull; Mesa: 37\n&bull; Direcci&oacute;n: CALLE 38 No 31 141\n&bull; Municipio: SOACHA\n\n&#128506;&#65039; https://www.google.com/maps?q=4.606188,-74.213060", 'bot');
             } else {
-                addMessage("Por favor ingrese su número de Cédula sin puntos ni espacios.", 'bot');
+                addMessage("Por favor ingrese su n&uacute;mero de C&eacute;dula sin puntos ni espacios.", 'bot');
             }
         }, 600);
     }
@@ -180,11 +180,11 @@
         addMessage(opcion, 'user');
         setTimeout(() => {
             if (opcion.includes('1.')) {
-                addMessage("Por favor ingrese su número de Cédula (NUIP):", 'bot');
+                addMessage("Por favor ingrese su n&uacute;mero de C&eacute;dula (NUIP):", 'bot');
             } else if (opcion.includes('2.')) {
-                addMessage("Por favor ingrese su PIN de acceso de Líder/Coordinador:", 'bot');
+                addMessage("Por favor ingrese su PIN de acceso de L&iacute;der/Coordinador:", 'bot');
             } else {
-                addMessage("Conforme a la Ley 1581 de 2012, sus datos son tratados de forma confidencial únicamente para fines de la campaña.", 'bot');
+                addMessage("Conforme a la Ley 1581 de 2012, sus datos son tratados de forma confidencial &uacute;nicamente para fines de la campa&ntilde;a.", 'bot');
             }
         }, 500);
     }
