@@ -101,7 +101,7 @@
     <div class="card">
         <div class="tabs">
             <button class="tab-btn active" onclick="setTab('base',this)">Base de datos (99)</button>
-            
+            <button class="tab-btn" onclick="setTab('probar',this)">Cédulas de prueba</button>
             <button class="tab-btn" onclick="setTab('audit',this)">Auditoría</button>
         </div>
         <div class="stats">
@@ -117,7 +117,9 @@
                 </table>
             </div>
         </div>
-        
+        <div id="tab-probar" class="tab-content" style="display:none">
+            <p style="font-size:14px;color:var(--muted);margin-bottom:12px">Toque cualquier cédula para consultar en el chat:</p>
+            <div id="chipsWrap"></div>
         </div>
         <div id="tab-audit" class="tab-content" style="display:none">
             <div class="table-wrap">
