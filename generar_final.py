@@ -132,7 +132,7 @@ html_content = f"""<!DOCTYPE html>
     </div>
 </div>
 <script>
-const DB={{json_db}};
+const DB={json_db};
 let auditLogs=[];
 function initDB(){{
     const tbody=document.getElementById('dbRows');
