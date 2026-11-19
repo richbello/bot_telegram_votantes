@@ -5,165 +5,357 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Consulta de Puesto de Votación · Soacha 2027</title>
 <style>
-  :root{--bg:#0f1720;--card:#16212d;--bot:#1f2d3b;--user:#1e7a4f;--txt:#e8eef4;--mut:#8aa0b4;--acc:#2fbf71}
+  :root{--bg:#0f1720;--card:#16212d;--bot:#1f2d3b;--user:#1e7a4f;--txt:#e8eef4;--mut:#8aa0b4;--acc:#2fbf71;--err:#ff7a7a;--line:#ffffff14}
   *{box-sizing:border-box}
   body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt);
        min-height:100vh;display:flex;justify-content:center;padding:16px}
-  .app{width:100%;max-width:520px;background:var(--card);border-radius:16px;display:flex;flex-direction:column;
+  .app{width:100%;max-width:560px;background:var(--card);border-radius:16px;display:flex;flex-direction:column;
        height:calc(100vh - 32px);overflow:hidden;box-shadow:0 10px 40px #0006}
-  header{padding:16px 18px;border-bottom:1px solid #ffffff12}
+  header{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  header .t{flex:1}
   header h1{margin:0;font-size:1.05rem}
-  header p{margin:4px 0 0;color:var(--mut);font-size:.82rem}
+  header p{margin:3px 0 0;color:var(--mut);font-size:.8rem}
+  .btn{background:transparent;border:1px solid #ffffff2a;color:var(--txt);padding:7px 11px;border-radius:999px;cursor:pointer;font-size:.82rem}
+  .btn:hover{border-color:var(--acc)}
+  .btn.pri{background:var(--acc);border-color:var(--acc);color:#062;font-weight:700;border-radius:10px}
+  .btn.sm{padding:4px 9px;font-size:.75rem}
+  .btn:disabled{opacity:.5;cursor:default}
+  .view{flex:1;display:flex;flex-direction:column;min-height:0}
+  .hidden{display:none!important}
   #msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
   .msg{max-width:85%;padding:10px 13px;border-radius:14px;line-height:1.4;white-space:pre-line;font-size:.95rem}
   .bot{background:var(--bot);align-self:flex-start;border-bottom-left-radius:4px}
   .user{background:var(--user);align-self:flex-end;border-bottom-right-radius:4px}
   .msg a{color:var(--acc)}
   .quick{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 10px}
-  .quick button{background:transparent;border:1px solid #ffffff2a;color:var(--txt);padding:7px 11px;border-radius:999px;cursor:pointer;font-size:.85rem}
-  .quick button:hover{border-color:var(--acc)}
-  form{display:flex;gap:8px;padding:12px;border-top:1px solid #ffffff12}
-  input{flex:1;background:#0f1720;border:1px solid #ffffff22;color:var(--txt);padding:11px 13px;border-radius:10px;font-size:1rem}
-  input:focus{outline:2px solid var(--acc);border-color:transparent}
-  form button{background:var(--acc);border:0;color:#062;font-weight:700;padding:0 16px;border-radius:10px;cursor:pointer}
-  form button:disabled{opacity:.5}
-  .panel{min-width:280px;white-space:normal}
-  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
-  .kpis div{background:#0f1720;border-radius:8px;padding:8px;text-align:center}
-  .kpis b{display:block;font-size:1.25rem;color:var(--acc)}
+  form.bar{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+  input,select{background:#0f1720;border:1px solid #ffffff22;color:var(--txt);padding:10px 12px;border-radius:10px;font-size:.95rem;width:100%}
+  input:focus,select:focus{outline:2px solid var(--acc);border-color:transparent}
+  form.bar input{flex:1}
+  footer{color:var(--mut);font-size:.72rem;text-align:center;padding:0 12px 10px}
+  /* Equipo */
+  #equipo{overflow-y:auto;padding:16px}
+  .card{background:var(--bot);border-radius:12px;padding:14px;margin-bottom:12px}
+  .card h3{margin:0 0 10px;font-size:.78rem;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  .who{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .who b{flex:1}
+  .tag{font-size:.7rem;padding:2px 8px;border-radius:999px;background:#2fbf7122;color:var(--acc)}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:12px}
+  .kpis div{background:var(--bot);border-radius:10px;padding:10px;text-align:center}
+  .kpis b{display:block;font-size:1.35rem;color:var(--acc)}
   .kpis span{font-size:.72rem;color:var(--mut)}
-  .panel h4{margin:12px 0 6px;font-size:.8rem;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .field{margin-bottom:8px}
+  .field label{display:block;font-size:.75rem;color:var(--mut);margin-bottom:4px}
+  .chk{display:flex;gap:8px;align-items:flex-start;font-size:.78rem;color:var(--mut);margin:8px 0}
+  .chk input{width:auto;margin-top:2px}
+  .note{font-size:.8rem;padding:8px 10px;border-radius:8px;margin:8px 0;background:#0f1720}
+  .note.ok{color:var(--acc)} .note.err{color:var(--err)}
+  .pinbox{background:#0f1720;border:1px dashed var(--acc);border-radius:10px;padding:12px;text-align:center;margin-top:10px}
+  .pinbox b{display:block;font-size:1.8rem;letter-spacing:.3em;color:var(--acc);margin:4px 0}
+  table{width:100%;border-collapse:collapse;font-size:.8rem}
+  th{text-align:left;color:var(--mut);font-weight:500;padding:6px 4px;border-bottom:1px solid var(--line)}
+  td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-align:middle}
+  td.n{text-align:right;white-space:nowrap}
+  .off{opacity:.45}
   .row{display:grid;grid-template-columns:1fr 70px 92px;gap:8px;align-items:center;font-size:.8rem;padding:3px 0}
   .row .lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .row .bar{height:6px;background:#0f1720;border-radius:3px;overflow:hidden}
-  .row .bar span{display:block;height:100%;background:var(--acc)}
+  .row .barra{height:6px;background:#0f1720;border-radius:3px;overflow:hidden}
+  .row .barra span{display:block;height:100%;background:var(--acc)}
   .row .num{text-align:right;white-space:nowrap}
   .row .num small{color:var(--mut)}
-  .panel h4 + .row:not(:has(.bar)), .panel .row:not(:has(.bar)){grid-template-columns:1fr auto}
-  .upd{color:var(--mut);font-size:.72rem;margin:10px 0 0}
-  footer{color:var(--mut);font-size:.72rem;text-align:center;padding:0 12px 10px}
+  .empty{color:var(--mut);font-size:.82rem}
 </style>
 </head>
 <body>
 <main class="app">
   <header>
-    <h1>🗳️ Consulta de Puesto de Votación</h1>
-    <p>Soacha 2027 · Datos de ejemplo (ficticios)</p>
+    <div class="t">
+      <h1>🗳️ Consulta de Puesto de Votación</h1>
+      <p>Soacha 2027 · Datos de ejemplo (ficticios)</p>
+    </div>
+    <button class="btn" id="toggle">👥 Equipo</button>
   </header>
 
-  <section id="msgs" aria-live="polite"></section>
+  <!-- Vista pública: chat -->
+  <section class="view" id="chat">
+    <div id="msgs" aria-live="polite"></div>
+    <div class="quick">
+      <button class="btn" data-modo="cedula">🔎 Consultar mi puesto</button>
+      <button class="btn" data-modo="privacidad">🔒 Privacidad</button>
+    </div>
+    <form class="bar" id="f" autocomplete="off">
+      <input id="in" inputmode="numeric" placeholder="Escriba su número de cédula" aria-label="Cédula">
+      <button class="btn pri" id="send">Enviar</button>
+    </form>
+    <footer>Esta página no contiene la base de datos: cada consulta se resuelve en el servidor.</footer>
+  </section>
 
-  <div class="quick">
-    <button data-modo="cedula">🔎 Consultar mi puesto</button>
-    <button data-modo="pin">👥 Coordinadores</button>
-    <button data-modo="privacidad">🔒 Privacidad</button>
-  </div>
-
-  <form id="f" autocomplete="off">
-    <input id="in" inputmode="numeric" placeholder="Escriba su número de cédula" aria-label="Mensaje">
-    <button id="send">Enviar</button>
-  </form>
-  <footer>Esta página no contiene la base de datos: cada consulta se resuelve en el servidor.</footer>
+  <!-- Vista equipo -->
+  <section class="view hidden" id="equipo"></section>
 </main>
 
 <script>
-  // ← URL de tu Worker después de `wrangler deploy`
   const API = "https://puestos-soacha-api.richbello.workers.dev";
 
-  const msgs = document.getElementById("msgs");
-  const input = document.getElementById("in");
-  const send = document.getElementById("send");
-  let modo = "cedula";
+  // ───────── utilidades ─────────
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const ROL = { candidato: "Candidato", coordinador: "Coordinador", gestor: "Gestor" };
+  let sesion = null;
+  try { sesion = JSON.parse(sessionStorage.getItem("sesion") || "null"); } catch {}
+  const guardarSesion = (s) => { sesion = s; try { s ? sessionStorage.setItem("sesion", JSON.stringify(s)) : sessionStorage.removeItem("sesion"); } catch {} };
 
+  async function api(path, { method = "GET", body } = {}) {
+    const headers = { "Content-Type": "application/json" };
+    if (sesion?.token) headers.Authorization = "Bearer " + sesion.token;
+    const r = await fetch(API + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+    const d = await r.json().catch(() => ({ ok: false, error: "Respuesta inválida del servidor." }));
+    if (r.status === 401 && sesion && path !== "/api/login") { guardarSesion(null); render(); }
+    return d;
+  }
+
+  // ───────── chat público ─────────
+  const msgs = $("#msgs"), input = $("#in"), send = $("#send");
   function add(text, who = "bot", html = false) {
     const d = document.createElement("div");
     d.className = "msg " + who;
     html ? (d.innerHTML = text) : (d.textContent = text);
-    msgs.appendChild(d);
-    msgs.scrollTop = msgs.scrollHeight;
+    msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
   }
-
-  function setModo(m) {
-    modo = m;
-    if (m === "cedula") {
-      input.type = "text"; input.inputMode = "numeric"; input.placeholder = "Escriba su número de cédula";
-      add("Escriba su número de cédula (solo números).");
-    } else if (m === "pin") {
-      input.type = "password"; input.inputMode = "numeric"; input.placeholder = "PIN de coordinador";
-      add("Ingrese su PIN de coordinador.");
-    } else {
-      add("Solo consultamos la cédula que usted escribe y devolvemos su puesto y mesa. " +
-          "No mostramos listados ni guardamos su número: el registro de auditoría usa una huella cifrada. " +
+  document.querySelectorAll("[data-modo]").forEach((b) => b.onclick = () => {
+    if (b.dataset.modo === "privacidad") {
+      add("Solo consultamos la cédula que usted escribe y devolvemos su puesto y mesa. No mostramos listados. " +
           "Tratamiento de datos conforme a la Ley 1581 de 2012.");
-      modo = "cedula";
-    }
+    } else add("Escriba su número de cédula (solo números).");
     input.focus();
-  }
-
-  async function consultar(cedula) {
-    const r = await fetch(`${API}/api/puesto?cedula=${encodeURIComponent(cedula)}`);
-    const d = await r.json();
-    if (!d.ok) return add("⚠️ " + d.error);
-    if (!d.encontrado) return add("No encontramos esa cédula en nuestra base. Verifique el número o consulte en la Registraduría.");
-    const mapa = d.lat && d.lng ? `<br><a href="https://www.google.com/maps?q=${d.lat},${d.lng}" target="_blank" rel="noopener">📍 Ver en el mapa</a>` : "";
-    const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-    add(`✅ Cédula ${esc(d.cedula)}<br><b>${esc(d.puesto)}</b><br>Mesa ${esc(d.mesa)}<br>${esc(d.direccion)}<br>${esc(d.municipio)}${mapa}`, "bot", true);
-  }
-
-  async function coordinador(pin) {
-    const r = await fetch(`${API}/api/coordinador`, {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pin })
-    });
-    const d = await r.json();
-    if (!d.ok) return add("⚠️ " + d.error);
-    const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-    const foco = d.municipio_foco || "SOACHA";
-    const puestos = d.por_puesto_foco || [];
-    const max = Math.max(1, ...puestos.map(p => p.votantes));
-    const filas = puestos.map(p => `
-      <div class="row">
-        <div class="lbl" title="${esc(p.puesto)}">${esc(p.puesto)}</div>
-        <div class="bar"><span style="width:${Math.round(p.votantes / max * 100)}%"></span></div>
-        <div class="num">${p.votantes}<small> · ${p.mesas} mesa${p.mesas === 1 ? "" : "s"}</small></div>
-      </div>`).join("");
-    const muni = Object.entries(d.por_municipio || {}).map(([m, n]) =>
-      `<div class="row"><div class="lbl">${esc(m)}</div><div class="num">${n}</div></div>`).join("");
-    add(`<div class="panel">
-      <div class="kpis">
-        <div><b>${d.total_votantes}</b><span>votantes</span></div>
-        <div><b>${d.votantes_foco ?? "–"}</b><span>en ${esc(foco)}</span></div>
-        <div><b>${puestos.length}</b><span>puestos ${esc(foco)}</span></div>
-      </div>
-      <h4>${esc(foco)} por puesto</h4>${filas || "<p>Sin registros.</p>"}
-      <h4>Por municipio</h4>${muni}
-      <p class="upd">Actualizado ${esc(d.actualizado)}</p>
-    </div>`, "bot", true);
-    setModo("cedula");
-  }
-
-  document.querySelectorAll(".quick button").forEach(b => b.onclick = () => setModo(b.dataset.modo));
-
-  document.getElementById("f").onsubmit = async (e) => {
+  });
+  $("#f").onsubmit = async (e) => {
     e.preventDefault();
-    const v = input.value.trim();
-    if (!v) return;
-    input.value = "";
-    add(modo === "pin" ? "••••" : v, "user");
+    const ced = input.value.replace(/\D/g, "");
+    if (!input.value.trim()) return;
+    add(input.value.trim(), "user"); input.value = "";
+    if (ced.length < 5 || ced.length > 10) return add("Eso no parece una cédula. Escriba solo los números (5 a 10 dígitos).");
     send.disabled = true;
     try {
-      if (modo === "pin") await coordinador(v);
+      const d = await api(`/api/puesto?cedula=${ced}`);
+      if (!d.ok) add("⚠️ " + d.error);
+      else if (!d.encontrado) add("No encontramos esa cédula en nuestra base. Verifique el número o consulte en la Registraduría.");
       else {
-        const ced = v.replace(/\D/g, "");
-        if (ced.length < 5 || ced.length > 10) add("Eso no parece una cédula. Escriba solo los números (5 a 10 dígitos).");
-        else await consultar(ced);
+        const mapa = d.lat && d.lng ? `<br><a href="https://www.google.com/maps?q=${d.lat},${d.lng}" target="_blank" rel="noopener">📍 Ver en el mapa</a>` : "";
+        add(`✅ Cédula ${esc(d.cedula)}<br><b>${esc(d.puesto)}</b><br>Mesa ${esc(d.mesa)}<br>${esc(d.direccion)}<br>${esc(d.municipio)}${mapa}`, "bot", true);
       }
-    } catch {
-      add("⚠️ No pudimos conectar con el servidor. Intente de nuevo.");
-    } finally { send.disabled = false; input.focus(); }
+    } catch { add("⚠️ No pudimos conectar con el servidor. Intente de nuevo."); }
+    finally { send.disabled = false; input.focus(); }
   };
-
   add("Hola 👋 Soy el asistente de la campaña. Le ayudo a encontrar su puesto de votación.");
-  setModo("cedula");
+  add("Escriba su número de cédula (solo números).");
+
+  // ───────── navegación ─────────
+  let vista = "chat";
+  $("#toggle").onclick = () => { vista = vista === "chat" ? "equipo" : "chat"; render(); };
+
+  function render() {
+    $("#chat").classList.toggle("hidden", vista !== "chat");
+    $("#equipo").classList.toggle("hidden", vista !== "equipo");
+    $("#toggle").textContent = vista === "chat" ? "👥 Equipo" : "💬 Consulta";
+    if (vista === "equipo") sesion ? cargarPanel() : pintarLogin();
+  }
+
+  // ───────── login ─────────
+  function pintarLogin(error = "") {
+    $("#equipo").innerHTML = `
+      <div class="card">
+        <h3>Ingreso del equipo</h3>
+        <p class="empty">Candidato, coordinadores y gestores: ingrese su PIN personal.</p>
+        <form id="flogin" autocomplete="off">
+          <div class="field"><input id="pin" type="password" inputmode="numeric" maxlength="10" placeholder="PIN" aria-label="PIN"></div>
+          ${error ? `<div class="note err">${esc(error)}</div>` : ""}
+          <button class="btn pri" style="width:100%;padding:10px">Ingresar</button>
+        </form>
+      </div>`;
+    $("#pin").focus();
+    $("#flogin").onsubmit = async (e) => {
+      e.preventDefault();
+      const d = await api("/api/login", { method: "POST", body: { pin: $("#pin").value } });
+      if (!d.ok) return pintarLogin(d.error);
+      guardarSesion({ token: d.token, usuario: d.usuario });
+      cargarPanel();
+    };
+  }
+
+  // ───────── panel ─────────
+  let flash = null; // mensaje o PIN a mostrar tras recargar el panel
+  async function cargarPanel() {
+    $("#equipo").innerHTML = `<p class="empty">Cargando…</p>`;
+    const d = await api("/api/panel");
+    if (!d.ok) return sesion ? ($("#equipo").innerHTML = `<div class="note err">${esc(d.error)}</div>`) : pintarLogin(d.error);
+    const u = d.usuario;
+    let html = `<div class="who"><b>${esc(u.nombre)}</b><span class="tag">${ROL[u.rol]}${u.id !== "CANDIDATO" ? " · " + esc(u.id) : ""}</span>
+      <button class="btn sm" id="salir">Salir</button></div>`;
+    html += flashHtml();
+    if (u.rol === "gestor") html += panelGestor(d);
+    else html += panelEquipo(d, u);
+    $("#equipo").innerHTML = html;
+    $("#salir").onclick = () => { guardarSesion(null); pintarLogin(); };
+    if (u.rol === "gestor") enlazarGestor();
+    else enlazarEquipo(d, u);
+  }
+
+  function flashHtml() {
+    if (!flash) return "";
+    const f = flash; flash = null;
+    if (f.pin) return `<div class="pinbox">PIN de <b style="font-size:1rem;letter-spacing:0;display:inline">${esc(f.nombre)}</b> (${esc(f.id)})
+      <b>${esc(f.pin)}</b><span class="empty">Entréguelo en persona. No se volverá a mostrar.</span></div>`;
+    return `<div class="note ${f.err ? "err" : "ok"}">${esc(f.texto)}</div>`;
+  }
+
+  function barras(lista) {
+    if (!lista?.length) return `<p class="empty">Aún no hay votantes registrados.</p>`;
+    const max = Math.max(1, ...lista.map((p) => p.votantes));
+    return lista.map((p) => `<div class="row"><div class="lbl" title="${esc(p.puesto)} · ${esc(p.municipio)}">${esc(p.puesto)}</div>
+      <div class="barra"><span style="width:${Math.round(p.votantes / max * 100)}%"></span></div>
+      <div class="num">${p.votantes}<small> · ${p.mesas} mesa${p.mesas === 1 ? "" : "s"}</small></div></div>`).join("");
+  }
+
+  // Gestor
+  function panelGestor(d) {
+    const filas = d.mis_votantes.map((v) => `<tr><td>${esc(v.cedula)}</td><td>${esc(v.nombre || "—")}</td>
+      <td>${esc(v.puesto)}</td><td class="n">${esc(v.mesa)}</td></tr>`).join("");
+    return `
+      <div class="kpis"><div><b>${d.total}</b><span>mis votantes</span></div></div>
+      <div class="card">
+        <h3>Registrar votante</h3>
+        <form id="freg" autocomplete="off">
+          <div class="field"><label>Cédula</label><input id="r_ced" inputmode="numeric" maxlength="12"></div>
+          <div id="r_base" class="note hidden"></div>
+          <div class="grid2">
+            <div class="field"><label>Nombre</label><input id="r_nom" maxlength="80"></div>
+            <div class="field"><label>Teléfono</label><input id="r_tel" inputmode="tel" maxlength="20"></div>
+          </div>
+          <div id="r_manual">
+            <div class="field"><label>Puesto de votación</label><input id="r_pue" maxlength="120" placeholder="Consúltelo en la Registraduría"></div>
+            <div class="grid2">
+              <div class="field"><label>Mesa</label><input id="r_mesa" inputmode="numeric" maxlength="3"></div>
+              <div class="field"><label>Municipio</label><input id="r_mun" value="SOACHA" maxlength="60"></div>
+            </div>
+          </div>
+          <label class="chk"><input type="checkbox" id="r_aut">
+            <span>El votante autorizó el tratamiento de sus datos personales para fines de la campaña (Ley 1581 de 2012).</span></label>
+          <div id="r_msg"></div>
+          <button class="btn pri" style="width:100%;padding:10px">Registrar</button>
+        </form>
+      </div>
+      <div class="card"><h3>Mis votantes</h3>
+        ${filas ? `<table><tr><th>Cédula</th><th>Nombre</th><th>Puesto</th><th class="n">Mesa</th></tr>${filas}</table>`
+                : `<p class="empty">Aún no ha registrado votantes.</p>`}
+      </div>`;
+  }
+
+  function enlazarGestor() {
+    let enBase = false;
+    $("#r_ced").onblur = async () => {
+      const c = $("#r_ced").value.replace(/\D/g, "");
+      const box = $("#r_base");
+      if (c.length < 5) { box.classList.add("hidden"); $("#r_manual").classList.remove("hidden"); enBase = false; return; }
+      const d = await api(`/api/puesto?cedula=${c}`);
+      enBase = !!d.encontrado;
+      box.classList.toggle("hidden", !enBase);
+      $("#r_manual").classList.toggle("hidden", enBase);
+      if (enBase) { box.className = "note ok"; box.textContent = `En la base: ${d.puesto} · mesa ${d.mesa} · ${d.municipio}`; }
+    };
+    $("#freg").onsubmit = async (e) => {
+      e.preventDefault();
+      const body = {
+        cedula: $("#r_ced").value, nombre: $("#r_nom").value, telefono: $("#r_tel").value,
+        puesto: $("#r_pue").value, mesa: $("#r_mesa").value, municipio: $("#r_mun").value,
+        autorizacion: $("#r_aut").checked,
+      };
+      if (!body.autorizacion) return ($("#r_msg").innerHTML = `<div class="note err">Marque la autorización del votante.</div>`);
+      const d = await api("/api/votantes", { method: "POST", body });
+      if (!d.ok) return ($("#r_msg").innerHTML = `<div class="note err">${esc(d.error)}</div>`);
+      flash = { texto: d.mensaje };
+      cargarPanel();
+    };
+  }
+
+  // Coordinador y candidato
+  function panelEquipo(d, u) {
+    const t = d.totales;
+    let kpis = `<div><b>${t.votantes}</b><span>votantes del equipo</span></div>
+                <div><b>${t.gestores}</b><span>gestores activos</span></div>
+                <div><b>${t.puestos}</b><span>puestos cubiertos</span></div>`;
+    if (u.rol === "candidato") kpis = `<div><b>${d.por_coordinador.length}</b><span>coordinadores</span></div>` + kpis +
+      `<div><b>${d.base.total}</b><span>en la base</span></div>`;
+
+    const coords = d.por_coordinador || [];
+    const nombreCoord = Object.fromEntries(coords.map((c) => [c.id, c.nombre]));
+
+    const crear = u.rol === "candidato" ? `
+      <form id="fusr" class="card" autocomplete="off"><h3>Crear usuario</h3>
+        <div class="grid2">
+          <div class="field"><label>Rol</label><select id="u_rol"><option value="coordinador">Coordinador</option><option value="gestor">Gestor</option></select></div>
+          <div class="field"><label>Nombre</label><input id="u_nom" maxlength="80"></div>
+        </div>
+        <div class="field hidden" id="u_cwrap"><label>Coordinador a cargo</label>
+          <select id="u_coord">${coords.filter((c) => c.activo).map((c) => `<option value="${esc(c.id)}">${esc(c.nombre)} (${esc(c.id)})</option>`).join("")}</select></div>
+        <div id="u_msg"></div>
+        <button class="btn pri" style="width:100%;padding:10px">Crear y generar PIN</button>
+      </form>` : `
+      <form id="fusr" class="card" autocomplete="off"><h3>Agregar gestor a mi equipo</h3>
+        <div class="field"><label>Nombre</label><input id="u_nom" maxlength="80"></div>
+        <div id="u_msg"></div>
+        <button class="btn pri" style="width:100%;padding:10px">Crear y generar PIN</button>
+      </form>`;
+
+    const acciones = (x) => `<button class="btn sm" data-pin="${esc(x.id)}" data-nom="${esc(x.nombre)}">Nuevo PIN</button>
+      <button class="btn sm" data-estado="${esc(x.id)}" data-activo="${x.activo ? 0 : 1}">${x.activo ? "Desactivar" : "Activar"}</button>`;
+
+    const tCoord = u.rol === "candidato" ? `<div class="card"><h3>Coordinadores</h3>${coords.length ? `<table>
+        <tr><th>Coordinador</th><th class="n">Gestores</th><th class="n">Votantes</th><th></th></tr>
+        ${coords.map((c) => `<tr class="${c.activo ? "" : "off"}"><td>${esc(c.nombre)}<br><small class="empty">${esc(c.id)}</small></td>
+          <td class="n">${c.gestores}</td><td class="n">${c.votantes}</td><td class="n">${acciones(c)}</td></tr>`).join("")}
+      </table>` : `<p class="empty">Cree el primer coordinador.</p>`}</div>` : "";
+
+    const gest = d.por_gestor;
+    const tGest = `<div class="card"><h3>${u.rol === "candidato" ? "Gestores" : "Mis gestores"}</h3>${gest.length ? `<table>
+        <tr><th>Gestor</th>${u.rol === "candidato" ? "<th>Coordinador</th>" : ""}<th class="n">Votantes</th><th></th></tr>
+        ${gest.map((g) => `<tr class="${g.activo ? "" : "off"}"><td>${esc(g.nombre)}<br><small class="empty">${esc(g.id)}</small></td>
+          ${u.rol === "candidato" ? `<td>${esc(nombreCoord[g.coordinador_id] || g.coordinador_id || "—")}</td>` : ""}
+          <td class="n">${g.votantes}</td><td class="n">${acciones(g)}</td></tr>`).join("")}
+      </table>` : `<p class="empty">Aún no hay gestores.</p>`}</div>`;
+
+    return `<div class="kpis">${kpis}</div>${crear}${tCoord}${tGest}
+      <div class="card"><h3>Votantes por puesto</h3>${barras(d.por_puesto)}</div>`;
+  }
+
+  function enlazarEquipo(d, u) {
+    const rolSel = $("#u_rol");
+    if (rolSel) rolSel.onchange = () => $("#u_cwrap").classList.toggle("hidden", rolSel.value !== "gestor");
+    $("#fusr").onsubmit = async (e) => {
+      e.preventDefault();
+      const body = { rol: rolSel ? rolSel.value : "gestor", nombre: $("#u_nom").value, coordinador_id: $("#u_coord")?.value };
+      if (body.rol === "gestor" && rolSel && !body.coordinador_id) {
+        return ($("#u_msg").innerHTML = `<div class="note err">Primero cree un coordinador.</div>`);
+      }
+      const r = await api("/api/usuarios", { method: "POST", body });
+      if (!r.ok) return ($("#u_msg").innerHTML = `<div class="note err">${esc(r.error)}</div>`);
+      flash = { pin: r.pin, nombre: r.usuario.nombre, id: r.usuario.id };
+      cargarPanel();
+    };
+    document.querySelectorAll("[data-estado]").forEach((b) => b.onclick = async () => {
+      const r = await api(`/api/usuarios/${b.dataset.estado}/estado`, { method: "POST", body: { activo: b.dataset.activo === "1" } });
+      flash = r.ok ? { texto: `Usuario ${b.dataset.estado} ${b.dataset.activo === "1" ? "activado" : "desactivado"}.` } : { texto: r.error, err: true };
+      cargarPanel();
+    });
+    document.querySelectorAll("[data-pin]").forEach((b) => b.onclick = async () => {
+      const r = await api(`/api/usuarios/${b.dataset.pin}/pin`, { method: "POST" });
+      flash = r.ok ? { pin: r.pin, nombre: b.dataset.nom, id: b.dataset.pin } : { texto: r.error, err: true };
+      cargarPanel();
+    });
+  }
+
+  render();
 </script>
 </body>
 </html>
