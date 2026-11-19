@@ -365,7 +365,9 @@
   }
 
   // Gestor
-  const REGISTRADURIA = "https://wsp.registraduria.gov.co/censo/consultar/";
+  const REGISTRADURIA = "https://consultacenso.registraduria.gov.co/";
+  // Respaldo: página "Electoral" de la Registraduría, donde siempre está el botón "Lugar de votación"
+  const REGISTRADURIA_RESPALDO = "https://www.registraduria.gov.co/-Electoral-797-.html";
   let completar = null; // votante pendiente que se está completando { ref, nombre, cedula }
 
   function panelGestor(d) {
@@ -407,11 +409,12 @@
               <b>Esta cédula no está en la base</b>
               <ol>
                 <li>Toque el botón: se copia la cédula y se abre la consulta de la Registraduría.</li>
-                <li>Allá pegue la cédula, marque "No soy un robot" y pulse Consultar.</li>
+                <li>Allá pegue la cédula, deje "Lugar de votación actual" y pulse Consultar.</li>
                 <li>Vuelva a esta pestaña y escriba el puesto y la mesa que le salieron.</li>
               </ol>
               <button type="button" class="btn pri" id="r_ir" style="width:100%;padding:12px">Copiar cédula y consultar en la Registraduría</button>
               <div id="r_copiado" class="note ok hidden"></div>
+              <p class="empty" style="font-size:.8rem;margin:8px 0 0">¿No abre? Use <a href="${REGISTRADURIA_RESPALDO}" target="_blank" rel="noopener">la página Electoral de la Registraduría</a> y toque "Lugar de votación".</p>
             </div>
             <label class="chk"><input type="checkbox" id="r_pend"><span>Todavía no sé el puesto: guardarlo como pendiente y completarlo después.</span></label>
             <div id="r_lugar">
