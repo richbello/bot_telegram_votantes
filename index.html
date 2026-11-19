@@ -485,6 +485,20 @@ function leerRegistraduria(texto) {
   const poner = (k, v) => { v = (v || "").replace(/\s+/g, " ").trim(); if (k && v && !out[k] && !tipo(v)) out[k] = v; };
   const lineas = String(texto || "").replace(/\r/g, "").split("\n").map((l) => l.trim()).filter(Boolean);
 
+  // Tabla copiada en el celular: todos los títulos en líneas seguidas y luego los valores en el mismo orden
+  // (ej. NUIP / DEPARTAMENTO / MUNICIPIO / PUESTO / DIRECCIÓN / MESA y después los seis valores)
+  const ES_NUIP = /^(nuip|c[eé]dula|no\.? identificaci[oó]n|documento)$/;
+  const tituloTabla = (t) => tipo(t) || ES_NUIP.test(norm(t));
+  for (let i = 0; i < lineas.length; i++) {
+    let j = i;
+    while (j < lineas.length && tituloTabla(lineas[j]) && !lineas[j].includes("\t")) j++;
+    const n = j - i;
+    if (n >= 3 && j + n <= lineas.length && !lineas.slice(j, j + n).some(tituloTabla)) {
+      for (let k = 0; k < n; k++) poner(tipo(lineas[i + k]), lineas[j + k]);
+      break;
+    }
+  }
+
   for (let i = 0; i < lineas.length; i++) {
     const l = lineas[i];
     // Tabla: fila de encabezados con tabulaciones y la fila siguiente con valores
@@ -506,6 +520,12 @@ function leerRegistraduria(texto) {
     // "MESA 12" o "Mesa No. 12"
     const mm = l.match(/^mesa(?:\s*(?:no\.?|n[°º]|#))?\s*:?\s*(\d{1,3})\b/i);
     if (mm) poner("mesa", mm[1]);
+  }
+  if (!out.puesto) {
+    const u = lineas.findIndex((l) => /^ubicaci[oó]n del puesto/i.test(l));
+    const v = u >= 0 ? lineas[u + 1] || "" : "";
+    const m = v.match(/^(.+?)\s+[—–-]\s+(.+?)(?:,\s*([^,]+))?$/);
+    if (m) { poner("puesto", m[1]); poner("direccion", m[2]); if (m[3]) poner("municipio", m[3]); }
   }
   if (out.mesa) { const n = out.mesa.match(/\d{1,3}/); out.mesa = n ? n[0] : ""; if (!out.mesa) delete out.mesa; }
   for (const k of ["puesto", "municipio", "departamento"]) if (out[k]) out[k] = out[k].toUpperCase();
