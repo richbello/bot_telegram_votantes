@@ -4,3 +4,8 @@ __pycache__/
 Grupo 1 Reg/
 Grupo 2 Reg/
 Grupo 3 Reg/
+
+votantes_data.json
+*.db
+*.xlsx
+kv_bulk.json
