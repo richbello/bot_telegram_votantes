@@ -27,6 +27,20 @@
   input:focus{outline:2px solid var(--acc);border-color:transparent}
   form button{background:var(--acc);border:0;color:#062;font-weight:700;padding:0 16px;border-radius:10px;cursor:pointer}
   form button:disabled{opacity:.5}
+  .panel{min-width:280px;white-space:normal}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+  .kpis div{background:#0f1720;border-radius:8px;padding:8px;text-align:center}
+  .kpis b{display:block;font-size:1.25rem;color:var(--acc)}
+  .kpis span{font-size:.72rem;color:var(--mut)}
+  .panel h4{margin:12px 0 6px;font-size:.8rem;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  .row{display:grid;grid-template-columns:1fr 70px 92px;gap:8px;align-items:center;font-size:.8rem;padding:3px 0}
+  .row .lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .row .bar{height:6px;background:#0f1720;border-radius:3px;overflow:hidden}
+  .row .bar span{display:block;height:100%;background:var(--acc)}
+  .row .num{text-align:right;white-space:nowrap}
+  .row .num small{color:var(--mut)}
+  .panel h4 + .row:not(:has(.bar)), .panel .row:not(:has(.bar)){grid-template-columns:1fr auto}
+  .upd{color:var(--mut);font-size:.72rem;margin:10px 0 0}
   footer{color:var(--mut);font-size:.72rem;text-align:center;padding:0 12px 10px}
 </style>
 </head>
@@ -102,8 +116,28 @@
     });
     const d = await r.json();
     if (!d.ok) return add("⚠️ " + d.error);
-    const muni = Object.entries(d.por_municipio || {}).map(([m, n]) => `• ${m}: ${n}`).join("\n");
-    add(`📊 Resumen (actualizado ${d.actualizado})\nVotantes: ${d.total_votantes}\nPuestos: ${d.total_puestos}\n${muni}`);
+    const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+    const foco = d.municipio_foco || "SOACHA";
+    const puestos = d.por_puesto_foco || [];
+    const max = Math.max(1, ...puestos.map(p => p.votantes));
+    const filas = puestos.map(p => `
+      <div class="row">
+        <div class="lbl" title="${esc(p.puesto)}">${esc(p.puesto)}</div>
+        <div class="bar"><span style="width:${Math.round(p.votantes / max * 100)}%"></span></div>
+        <div class="num">${p.votantes}<small> · ${p.mesas} mesa${p.mesas === 1 ? "" : "s"}</small></div>
+      </div>`).join("");
+    const muni = Object.entries(d.por_municipio || {}).map(([m, n]) =>
+      `<div class="row"><div class="lbl">${esc(m)}</div><div class="num">${n}</div></div>`).join("");
+    add(`<div class="panel">
+      <div class="kpis">
+        <div><b>${d.total_votantes}</b><span>votantes</span></div>
+        <div><b>${d.votantes_foco ?? "–"}</b><span>en ${esc(foco)}</span></div>
+        <div><b>${puestos.length}</b><span>puestos ${esc(foco)}</span></div>
+      </div>
+      <h4>${esc(foco)} por puesto</h4>${filas || "<p>Sin registros.</p>"}
+      <h4>Por municipio</h4>${muni}
+      <p class="upd">Actualizado ${esc(d.actualizado)}</p>
+    </div>`, "bot", true);
     setModo("cedula");
   }
 
