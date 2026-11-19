@@ -161,6 +161,15 @@
   .guia li{margin-bottom:4px}
   .resaltar{outline:2px solid var(--gold);outline-offset:6px;border-radius:12px}
   .pegar{margin:4px 0 12px}
+  .seg{border-top:1px solid var(--line);margin-top:14px;padding-top:14px}
+  .seg>b{display:block;margin-bottom:10px;font-family:var(--display)}
+  .sub{display:block;font-size:.82rem;font-weight:600;color:var(--muted);margin:4px 0 6px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip input{position:absolute;opacity:0;pointer-events:none}
+  .chip span{display:inline-block;padding:7px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);font-size:.84rem;font-weight:600;cursor:pointer}
+  .chip input:checked+span{background:var(--pri);border-color:var(--pri);color:#fff}
+  .chip input:focus-visible+span{outline:3px solid #7CC4AE;outline-offset:2px}
+  select{appearance:auto}
   .alternos{margin:12px 0 4px;font-size:.82rem;color:var(--muted)}
   .alternos span{display:block;margin-bottom:8px}
   .alternos .btn{display:flex;align-items:center;justify-content:center;text-align:center;border-radius:14px;padding:10px 8px;font-size:.82rem;line-height:1.2}
@@ -370,6 +379,15 @@
       <div class="num">${p.votantes}<small> · ${p.mesas} mesa${p.mesas === 1 ? "" : "s"}</small></div></div>`).join("");
   }
 
+  // Catálogos (deben coincidir con el Worker)
+  const CAT = {
+    comunas: ["Comuna 1 Compartir", "Comuna 2 Soacha Central", "Comuna 3 La Despensa", "Comuna 4 Cazucá",
+      "Comuna 5 San Mateo", "Comuna 6 San Humberto", "Corregimiento 1", "Corregimiento 2", "Otro municipio"],
+    rangos: ["18-25", "26-35", "36-45", "46-60", "61+"],
+    generos: ["Mujer", "Hombre", "Otro", "Prefiere no decir"],
+    intereses: ["Seguridad", "Empleo", "Salud", "Educación", "Juventud", "Adulto mayor", "Movilidad", "Vivienda", "Medio ambiente", "Deporte y cultura"],
+  };
+
   // Gestor
   const REGISTRADURIA = "https://consultacenso.registraduria.gov.co/";
   // Respaldo: página "Electoral" de la Registraduría, donde siempre está el botón "Lugar de votación"
@@ -427,7 +445,7 @@
           <div id="r_base" class="note hidden"></div>
           <div class="grid2">
             <div class="field"><label>Nombre</label><input id="r_nom" maxlength="80"></div>
-            <div class="field"><label>Teléfono</label><input id="r_tel" inputmode="tel" maxlength="20"></div>
+            <div class="field"><label>Celular (WhatsApp)</label><input id="r_tel" inputmode="tel" maxlength="20"></div>
           </div>
           <div id="r_manual" class="hidden">
             <div class="guia">
@@ -457,8 +475,19 @@
               <div class="field"><label>Dirección del puesto (opcional)</label><input id="r_dir" maxlength="120"></div>
             </div>
           </div>
+          <div class="seg">
+            <b>Datos para invitarlo a eventos</b>
+            <div class="field"><label>Comuna</label><select id="r_com"><option value="">Seleccione</option>${CAT.comunas.map((c) => `<option>${esc(c)}</option>`).join("")}</select></div>
+            <div class="field"><label>Barrio</label><input id="r_bar" maxlength="60" list="barrios" autocomplete="off" placeholder="Escriba y elija de la lista"><datalist id="barrios"></datalist></div>
+            <div class="grid2">
+              <div class="field"><label>Edad</label><select id="r_eda"><option value="">Seleccione</option>${CAT.rangos.map((c) => `<option>${esc(c)}</option>`).join("")}</select></div>
+              <div class="field"><label>Género</label><select id="r_gen"><option value="">Seleccione</option>${CAT.generos.map((c) => `<option>${esc(c)}</option>`).join("")}</select></div>
+            </div>
+            <label class="sub">Temas que le interesan</label>
+            <div class="chips">${CAT.intereses.map((c) => `<label class="chip"><input type="checkbox" name="r_int" value="${esc(c)}"><span>${esc(c)}</span></label>`).join("")}</div>
+          </div>
           <label class="chk"><input type="checkbox" id="r_aut">
-            <span>El votante autorizó el tratamiento de sus datos personales para fines de la campaña (Ley 1581 de 2012).</span></label>
+            <span>El votante autorizó, de forma expresa, que la campaña guarde sus datos (incluida su afinidad política, que es un dato sensible) para contactarlo e invitarlo a eventos, y sabe que puede pedir que se borren (Ley 1581 de 2012).</span></label>
           <div id="r_msg"></div>
           <button class="btn pri" style="width:100%;padding:12px">Registrar</button>
         </form>
@@ -578,14 +607,22 @@ function leerRegistraduria(texto) {
     $("#r_pend").onchange = () => $("#r_lugar").classList.toggle("hidden", $("#r_pend").checked);
 
     // Borrador: si el navegador recarga la página al volver de la Registraduría, no se pierde lo escrito
-    const campos = ["r_ced", "r_nom", "r_tel", "r_pue", "r_mesa", "r_mun", "r_dir"];
+    const campos = ["r_ced", "r_nom", "r_tel", "r_pue", "r_mesa", "r_mun", "r_dir", "r_com", "r_bar", "r_eda", "r_gen"];
     montarPegado("r");
+    // Barrios ya usados por el equipo, para que se escriban igual
+    api("/api/catalogos").then((d) => {
+      if (!d.ok) return;
+      const pintar = () => { const c = $("#r_com").value;
+        $("#barrios").innerHTML = [...new Set(d.barrios.filter((b) => !c || b.comuna === c).map((b) => b.barrio))].map((b) => `<option value="${esc(b)}">`).join(""); };
+      $("#r_com").addEventListener("change", pintar); pintar();
+    });
     const guardar = () => { try { sessionStorage.setItem("borrador", JSON.stringify(Object.fromEntries(campos.map((c) => [c, $("#" + c).value])))); } catch {} };
     try {
       const b = JSON.parse(sessionStorage.getItem("borrador") || "null");
       if (b) { campos.forEach((c) => { if (b[c]) $("#" + c).value = b[c]; }); if (b.r_ced) revisar(); }
     } catch {}
     campos.forEach((c) => $("#" + c).addEventListener("input", guardar));
+    ["r_com", "r_eda", "r_gen"].forEach((c) => $("#" + c).addEventListener("change", guardar));
 
     $("#r_ir").onclick = async () => {
       const ced = $("#r_ced").value.replace(/\D/g, "");
@@ -614,6 +651,8 @@ function leerRegistraduria(texto) {
       const body = {
         cedula: $("#r_ced").value, nombre: $("#r_nom").value, telefono: $("#r_tel").value,
         puesto: $("#r_pue").value, mesa: $("#r_mesa").value, municipio: $("#r_mun").value, direccion: $("#r_dir").value,
+        comuna: $("#r_com").value, barrio: $("#r_bar").value, rango_edad: $("#r_eda").value, genero: $("#r_gen").value,
+        intereses: [...document.querySelectorAll("input[name=r_int]:checked")].map((x) => x.value),
         pendiente: !$("#r_manual").classList.contains("hidden") && $("#r_pend").checked,
         autorizacion: $("#r_aut").checked,
       };
@@ -698,7 +737,8 @@ function leerRegistraduria(texto) {
       <button class="btn pri" style="width:100%;padding:10px;margin-top:6px">Crear todos y generar PIN</button>
     </form>`;
 
-    return `<div class="kpis">${kpis}</div>${crear}${masiva}${tCoord}${tGest}
+    const admin = `<a class="btn pri" href="admin.html" target="_blank" rel="noopener" style="display:block;text-align:center;padding:12px;margin-bottom:12px">Abrir base de datos y eventos</a>`;
+    return `<div class="kpis">${kpis}</div>${admin}${crear}${masiva}${tCoord}${tGest}
       <div class="card"><h3>Votantes por puesto</h3>${barras(d.por_puesto)}</div>`;
   }
 
@@ -749,6 +789,41 @@ function leerRegistraduria(texto) {
     });
   }
 
+  // Invitación a un evento: ?evento=TOKEN muestra el evento y el invitado confirma con su cédula
+  async function pintarInvitacion(token) {
+    vista = "equipo";
+    $("#chat").classList.add("hidden"); $("#equipo").classList.remove("hidden");
+    document.querySelector(".app").classList.add("modo-equipo");
+    $("#toggle").textContent = "Consulta";
+    $("#toggle").onclick = () => { history.replaceState(null, "", location.pathname); location.reload(); };
+    const d = await api("/api/rsvp?t=" + encodeURIComponent(token));
+    if (!d.ok) return ($("#equipo").innerHTML = `<div class="card"><h3>Invitación</h3><div class="note err">${esc(d.error)}</div></div>`);
+    const e = d.evento;
+    let fecha = new Date(e.fecha + "T12:00:00").toLocaleDateString("es-CO", { weekday: "long", day: "numeric", month: "long" });
+    fecha = fecha[0].toUpperCase() + fecha.slice(1);
+    $("#equipo").innerHTML = `<div class="pase">
+        <div class="pase-cab"><span>Está invitado</span></div>
+        <div style="padding:16px 18px 6px"><h3>${esc(e.nombre)}</h3>
+          <p class="dir">${esc(fecha)}${e.hora ? ", " + esc(e.hora) : ""}</p>
+          ${e.lugar ? `<p class="dir">${esc(e.lugar)}</p>` : ""}
+          ${e.descripcion ? `<p style="margin:10px 0 0">${esc(e.descripcion)}</p>` : ""}</div>
+        <form id="frsvp" style="padding:12px 18px 18px" autocomplete="off">
+          <div class="field"><label>Su número de cédula</label><input id="rs_ced" inputmode="numeric" maxlength="12" placeholder="Sin puntos ni espacios"></div>
+          <div id="rs_msg"></div>
+          <div class="grid2"><button type="button" class="btn" id="rs_no">No puedo ir</button><button class="btn pri">Confirmar asistencia</button></div>
+        </form></div>`;
+    const enviar = async (asiste) => {
+      const r = await api("/api/rsvp", { method: "POST", body: { t: token, cedula: $("#rs_ced").value, asiste } });
+      $("#rs_msg").innerHTML = `<div class="note ${r.ok ? "ok" : "err"}">${esc(r.ok ? r.mensaje : r.error)}</div>`;
+    };
+    $("#frsvp").onsubmit = (ev) => { ev.preventDefault(); enviar(true); };
+    $("#rs_no").onclick = () => enviar(false);
+  }
+  try {
+    const tk = new URLSearchParams(location.search).get("evento");
+    if (tk) { pintarInvitacion(tk); throw "invitacion"; }
+  } catch (x) { if (x === "invitacion") { /* no seguir con render normal */ } }
+
   // Enlace de acceso del equipo: ?equipo=1 abre el ingreso; &u=G-003 deja el código escrito
   try {
     const qs = new URLSearchParams(location.search);
@@ -759,7 +834,7 @@ function leerRegistraduria(texto) {
       history.replaceState(null, "", location.pathname);
     }
   } catch {}
-  render();
+  if (!new URLSearchParams(location.search).get("evento")) render();
 </script>
 </body>
 </html>

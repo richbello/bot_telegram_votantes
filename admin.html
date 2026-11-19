@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Base de votantes y eventos · Soacha 2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#F3F5F8;--surface:#fff;--ink:#0F2A3D;--muted:#5E6F7E;--line:#E2E7ED;--pri:#0E6B57;--pri-soft:#E3F1EC;--gold:#B8892B;--gold-soft:#FBF1DC;
+        --err:#B42318;--err-soft:#FDECEA;--display:"Bricolage Grotesque",system-ui,sans-serif;--body:"Figtree",system-ui,sans-serif}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--body);background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+  :focus-visible{outline:3px solid #7CC4AE;outline-offset:2px}
+  header{background:var(--pri);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  header h1{margin:0;font-family:var(--display);font-weight:800;font-size:1.5rem;letter-spacing:-.02em;flex:1}
+  header .quien{font-size:.88rem;opacity:.9}
+  nav{display:flex;gap:4px;background:rgba(255,255,255,.12);padding:4px;border-radius:999px}
+  nav button{font:inherit;font-weight:600;font-size:.9rem;border:0;background:none;color:#fff;padding:7px 16px;border-radius:999px;cursor:pointer}
+  nav button[aria-selected=true]{background:#fff;color:var(--pri)}
+  main{padding:20px 24px 40px;max-width:1400px;margin:0 auto}
+  .btn{font:inherit;font-size:.86rem;font-weight:600;background:var(--surface);border:1px solid var(--line);color:var(--ink);padding:8px 14px;border-radius:10px;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block}
+  .btn:hover{border-color:#C5CED8}
+  .btn.pri{background:var(--pri);border-color:var(--pri);color:#fff}
+  .btn.peligro{color:var(--err);border-color:#F3C2BC}
+  .btn.sm{padding:4px 10px;font-size:.78rem}
+  .btn.claro{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3);color:#fff}
+  input,select,textarea{font:inherit;font-size:.92rem;background:var(--surface);border:1.5px solid var(--line);color:var(--ink);padding:8px 10px;border-radius:10px;width:100%}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px var(--pri-soft)}
+  label.f{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:4px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+  h2{font-family:var(--display);font-size:1.15rem;margin:0 0 12px;letter-spacing:-.01em}
+  .hidden{display:none!important}
+  .note{font-size:.86rem;padding:9px 12px;border-radius:10px;margin:8px 0;background:var(--bg)}
+  .note.ok{background:var(--pri-soft);color:var(--pri);font-weight:600}
+  .note.err{background:var(--err-soft);color:var(--err);font-weight:600}
+  .empty{color:var(--muted)}
+  /* Login */
+  #login{max-width:380px;margin:60px auto}
+  /* Base */
+  .layout{display:grid;grid-template-columns:260px 1fr;gap:16px;align-items:start}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}}
+  .filtros .field{margin-bottom:10px}
+  .filtros .chk{display:flex;gap:8px;align-items:center;font-size:.86rem;margin:6px 0}
+  .filtros .chk input{width:auto;accent-color:var(--pri)}
+  .barra{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .barra .total{font-family:var(--display);font-size:1.4rem;font-weight:800;margin-right:auto}
+  .barra .total small{font-family:var(--body);font-size:.82rem;font-weight:500;color:var(--muted)}
+  .tabla{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:16px}
+  table{width:100%;border-collapse:collapse;font-size:.86rem}
+  th{text-align:left;font-size:.76rem;color:var(--muted);font-weight:600;padding:10px 10px;border-bottom:1px solid var(--line);white-space:nowrap;position:sticky;top:0;background:var(--surface)}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  tr.sel td{background:#F2F8F6}
+  td.nom b{display:block}
+  td small,.muted{color:var(--muted);font-size:.78rem}
+  .tag{display:inline-block;font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--bg);margin:0 3px 3px 0}
+  .tag.pend{background:var(--gold-soft);color:#8A5A00}
+  .pag{display:flex;gap:8px;justify-content:flex-end;align-items:center;margin-top:10px;font-size:.86rem}
+  .acciones{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 12px;background:var(--pri-soft);border-radius:12px;margin-bottom:12px}
+  .acciones select{width:auto}
+  /* Edición */
+  .drawer{position:sticky;top:16px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip input{position:absolute;opacity:0;pointer-events:none}
+  .chip span{display:inline-block;padding:5px 10px;border-radius:999px;border:1.5px solid var(--line);font-size:.8rem;font-weight:600;cursor:pointer}
+  .chip input:checked+span{background:var(--pri);border-color:var(--pri);color:#fff}
+  .chip input:focus-visible+span{outline:3px solid #7CC4AE}
+  /* Eventos */
+  .ev-grid{display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start}
+  @media (max-width:900px){.ev-grid{grid-template-columns:1fr}}
+  .evento{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer}
+  .evento:last-child{border-bottom:0}
+  .evento b{font-weight:700}
+  .evento.activo b{color:var(--pri)}
+  .cifras{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+  .cifras div{background:var(--bg);border-radius:12px;padding:10px}
+  .cifras b{display:block;font-family:var(--display);font-size:1.6rem;font-weight:800;line-height:1}
+  .cifras span{font-size:.76rem;color:var(--muted)}
+  .herr{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+  @media (max-width:700px){.herr{grid-template-columns:1fr}}
+  textarea#ev_msg{min-height:150px;font-size:.86rem}
+  .estado{width:auto;padding:4px 6px;font-size:.8rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>Base de votantes y eventos</h1>
+  <nav class="hidden" id="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="base">Base de votantes</button>
+    <button role="tab" aria-selected="false" data-tab="eventos">Eventos</button>
+  </nav>
+  <span class="quien" id="quien"></span>
+  <button class="btn claro hidden" id="salir">Salir</button>
+</header>
+<main id="main"></main>
+
+<script>
+  const API = "https://puestos-soacha-api.richbello.workers.dev";
+  const SITIO = "https://richbello.github.io/bot_telegram_votantes/";
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  let sesion = null; try { sesion = JSON.parse(sessionStorage.getItem("sesion") || "null"); } catch {}
+  const guardarSesion = (s) => { sesion = s; try { s ? sessionStorage.setItem("sesion", JSON.stringify(s)) : sessionStorage.removeItem("sesion"); } catch {} };
+
+  async function api(path, { method = "GET", body } = {}) {
+    const headers = { "Content-Type": "application/json" };
+    if (sesion?.token) headers.Authorization = "Bearer " + sesion.token;
+    const r = await fetch(API + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+    const d = await r.json().catch(() => ({ ok: false, error: "Respuesta inválida del servidor." }));
+    if (r.status === 401 && path !== "/api/login") { guardarSesion(null); pintarLogin(d.error); }
+    return d;
+  }
+
+  // ───────── ingreso ─────────
+  function pintarLogin(error = "") {
+    $("#tabs").classList.add("hidden"); $("#salir").classList.add("hidden"); $("#quien").textContent = "";
+    $("#main").innerHTML = `<form class="card" id="login" autocomplete="off"><h2>Ingreso</h2>
+      <p class="empty" style="margin-top:0">Para el candidato y los coordinadores.</p>
+      <div style="margin-bottom:10px"><label class="f">Código de usuario</label><input id="l_u" placeholder="CANDIDATO o K-001"></div>
+      <div style="margin-bottom:10px"><label class="f">PIN</label><input id="l_p" type="password" inputmode="numeric"></div>
+      ${error ? `<div class="note err">${esc(error)}</div>` : ""}
+      <button class="btn pri" style="width:100%;padding:10px">Ingresar</button></form>`;
+    let u = ""; try { u = localStorage.getItem("usuario") || ""; } catch {}
+    $("#l_u").value = u; (u ? $("#l_p") : $("#l_u")).focus();
+    $("#login").onsubmit = async (e) => {
+      e.preventDefault();
+      let usuario = $("#l_u").value.trim().toUpperCase().replace(/\s+/g, "");
+      if (/^[KG]\d+$/.test(usuario)) usuario = usuario[0] + "-" + usuario.slice(1).padStart(3, "0");
+      const d = await api("/api/login", { method: "POST", body: { usuario, pin: $("#l_p").value } });
+      if (!d.ok) return pintarLogin(d.error);
+      if (d.usuario.rol === "gestor") return pintarLogin("Esta sección es para el candidato y los coordinadores. Los gestores usan la app del celular.");
+      try { localStorage.setItem("usuario", usuario); } catch {}
+      guardarSesion({ token: d.token, usuario: d.usuario });
+      iniciar();
+    };
+  }
+
+  // ───────── estado ─────────
+  let CAT = null, filtros = {}, pagina = 0, ultimo = null, seleccion = new Set(), editando = null, eventos = [], eventoActual = null, tab = "base";
+  const yo = () => sesion.usuario;
+
+  async function iniciar() {
+    $("#tabs").classList.remove("hidden"); $("#salir").classList.remove("hidden");
+    $("#quien").textContent = yo().rol === "candidato" ? "Candidato" : `${yo().nombre} · Coordinador ${yo().id}`;
+    const c = await api("/api/catalogos"); if (!c.ok) return;
+    CAT = c;
+    await cargarEventos();
+    mostrar(tab);
+  }
+  $("#salir").onclick = () => { guardarSesion(null); pintarLogin(); };
+  document.querySelectorAll("#tabs button").forEach((b) => b.onclick = () => mostrar(b.dataset.tab));
+  function mostrar(t) {
+    tab = t;
+    document.querySelectorAll("#tabs button").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === t));
+    t === "base" ? pintarBase() : pintarEventos();
+  }
+
+  const opciones = (lista, sel, vacio = "Todos") => `<option value="">${vacio}</option>` +
+    lista.map((x) => { const v = typeof x === "string" ? x : x.id, n = typeof x === "string" ? x : `${x.nombre} (${x.id})`;
+      return `<option value="${esc(v)}" ${v === sel ? "selected" : ""}>${esc(n)}</option>`; }).join("");
+  const qs = (o) => new URLSearchParams(Object.entries(o).filter(([, v]) => v !== "" && v != null)).toString();
+
+  // ───────── base ─────────
+  async function pintarBase() {
+    const f = filtros;
+    const barrios = [...new Set(CAT.barrios.filter((b) => !f.comuna || b.comuna === f.comuna).map((b) => b.barrio))];
+    $("#main").innerHTML = `<div class="layout">
+      <form class="card filtros" id="ff" autocomplete="off"><h2>Filtrar</h2>
+        <div class="field"><label class="f">Nombre o cédula</label><input id="f_q" value="${esc(f.q || "")}"></div>
+        <div class="field"><label class="f">Comuna</label><select id="f_comuna">${opciones(CAT.comunas, f.comuna, "Todas")}</select></div>
+        <div class="field"><label class="f">Barrio</label><select id="f_barrio">${opciones(barrios, f.barrio)}</select></div>
+        <div class="grid2">
+          <div class="field"><label class="f">Edad</label><select id="f_edad">${opciones(CAT.rangos, f.edad)}</select></div>
+          <div class="field"><label class="f">Género</label><select id="f_genero">${opciones(CAT.generos, f.genero)}</select></div>
+        </div>
+        <div class="field"><label class="f">Tema de interés</label><select id="f_interes">${opciones(CAT.intereses, f.interes)}</select></div>
+        ${yo().rol === "candidato" ? `<div class="field"><label class="f">Coordinador</label><select id="f_coordinador">${opciones(CAT.coordinadores, f.coordinador)}</select></div>` : ""}
+        <div class="field"><label class="f">Gestor</label><select id="f_gestor">${opciones(CAT.gestores.filter((g) => !f.coordinador || g.coordinador_id === f.coordinador), f.gestor)}</select></div>
+        <div class="field"><label class="f">Puesto de votación contiene</label><input id="f_puesto" value="${esc(f.puesto || "")}"></div>
+        <label class="chk"><input type="checkbox" id="f_telefono" ${f.telefono ? "checked" : ""}> Solo con celular</label>
+        <label class="chk"><input type="checkbox" id="f_pendiente" ${f.pendiente ? "checked" : ""}> Solo sin puesto</label>
+        <div class="grid2" style="margin-top:10px"><button type="button" class="btn" id="f_limpiar">Limpiar</button><button class="btn pri">Aplicar</button></div>
+      </form>
+      <section>
+        <div class="barra"><span class="total" id="total">…</span>
+          <button class="btn" id="exp_csv">Exportar a Excel</button>
+          <button class="btn" id="exp_vcf">Descargar contactos</button>
+        </div>
+        <div class="acciones">
+          <span id="n_sel">0 seleccionados</span>
+          ${eventos.length ? `<select id="a_ev">${eventos.map((e) => `<option value="${e.id}">${esc(e.nombre)} (${esc(e.fecha)})</option>`).join("")}</select>
+            <button class="btn" id="a_inv_sel">Invitar seleccionados</button>
+            <button class="btn" id="a_inv_todos">Invitar a todos los filtrados</button>` : `<span class="muted">Cree un evento en la pestaña Eventos para invitar.</span>`}
+          ${CAT.gestores.length ? `<select id="a_gest">${CAT.gestores.map((g) => `<option value="${esc(g.id)}">${esc(g.nombre)} (${esc(g.id)})</option>`).join("")}</select>
+            <button class="btn" id="a_reasig">Pasar seleccionados a este gestor</button>` : ""}
+        </div>
+        <div id="msg"></div>
+        <div class="layout" style="grid-template-columns:1fr ${editando ? "360px" : "0"};gap:${editando ? "16px" : "0"}">
+          <div><div class="tabla" id="tabla"><p class="empty" style="padding:16px">Cargando…</p></div><div class="pag" id="pag"></div></div>
+          <div id="drawer"></div>
+        </div>
+      </section></div>`;
+    $("#f_comuna").onchange = () => { leerFiltros(); filtros.barrio = ""; pagina = 0; pintarBase(); };
+    if ($("#f_coordinador")) $("#f_coordinador").onchange = () => { leerFiltros(); filtros.gestor = ""; pagina = 0; pintarBase(); };
+    $("#ff").onsubmit = (e) => { e.preventDefault(); leerFiltros(); pagina = 0; seleccion.clear(); cargarTabla(); };
+    $("#f_limpiar").onclick = () => { filtros = {}; pagina = 0; seleccion.clear(); pintarBase(); };
+    $("#exp_csv").onclick = exportarCSV; $("#exp_vcf").onclick = () => exportarVCF();
+    if ($("#a_inv_sel")) {
+      $("#a_inv_sel").onclick = () => invitar({ refs: [...seleccion] });
+      $("#a_inv_todos").onclick = () => invitar({ filtros });
+    }
+    if ($("#a_reasig")) $("#a_reasig").onclick = reasignar;
+    await cargarTabla();
+    if (editando) pintarEditor();
+  }
+  function leerFiltros() {
+    const v = (id) => $("#f_" + id) ? $("#f_" + id).value.trim() : "";
+    filtros = { q: v("q"), comuna: v("comuna"), barrio: v("barrio"), edad: v("edad"), genero: v("genero"), interes: v("interes"),
+      coordinador: v("coordinador"), gestor: v("gestor"), puesto: v("puesto"),
+      telefono: $("#f_telefono").checked ? "1" : "", pendiente: $("#f_pendiente").checked ? "1" : "" };
+  }
+  const aviso = (t, err) => { $("#msg").innerHTML = `<div class="note ${err ? "err" : "ok"}">${esc(t)}</div>`; };
+
+  async function cargarTabla() {
+    const d = await api("/api/base?" + qs({ ...filtros, offset: pagina * 50 }));
+    if (!d.ok) return aviso(d.error, true);
+    ultimo = d;
+    $("#total").innerHTML = `${d.total} <small>votante${d.total === 1 ? "" : "s"}</small>`;
+    $("#tabla").innerHTML = d.filas.length ? `<table><thead><tr>
+        <th><input type="checkbox" id="sel_todos" aria-label="Seleccionar página"></th><th>Nombre</th><th>Celular</th><th>Comuna y barrio</th>
+        <th>Edad</th><th>Género</th><th>Intereses</th><th>Puesto</th><th>Gestor</th><th></th></tr></thead><tbody>
+      ${d.filas.map((v) => `<tr class="${seleccion.has(v.ref) ? "sel" : ""}">
+        <td><input type="checkbox" data-sel="${v.ref}" ${seleccion.has(v.ref) ? "checked" : ""} aria-label="Seleccionar"></td>
+        <td class="nom"><b>${esc(v.nombre || "Sin nombre")}</b><small>${esc(v.cedula)}</small></td>
+        <td>${esc(v.telefono || "")}</td>
+        <td>${esc(v.comuna || "")}<br><small>${esc(v.barrio || "")}</small></td>
+        <td>${esc(v.rango_edad || "")}</td><td>${esc(v.genero || "")}</td>
+        <td>${v.intereses.map((i) => `<span class="tag">${esc(i)}</span>`).join("")}</td>
+        <td>${v.puesto ? `${esc(v.puesto)}<br><small>Mesa ${esc(v.mesa ?? "")}</small>` : `<span class="tag pend">Sin puesto</span>`}</td>
+        <td><small>${esc(v.gestor || "")}</small></td>
+        <td><button class="btn sm" data-edit="${v.ref}">Editar</button></td></tr>`).join("")}</tbody></table>`
+      : `<p class="empty" style="padding:16px">No hay votantes con esos filtros.</p>`;
+    const pags = Math.ceil(d.total / 50);
+    $("#pag").innerHTML = pags > 1 ? `<button class="btn sm" id="p_ant" ${pagina ? "" : "disabled"}>Anterior</button>
+      Página ${pagina + 1} de ${pags} <button class="btn sm" id="p_sig" ${pagina + 1 < pags ? "" : "disabled"}>Siguiente</button>` : "";
+    if ($("#p_ant")) { $("#p_ant").onclick = () => { pagina--; cargarTabla(); }; $("#p_sig").onclick = () => { pagina++; cargarTabla(); }; }
+    document.querySelectorAll("[data-sel]").forEach((c) => c.onchange = () => {
+      c.checked ? seleccion.add(c.dataset.sel) : seleccion.delete(c.dataset.sel);
+      c.closest("tr").classList.toggle("sel", c.checked); contarSel(); });
+    if ($("#sel_todos")) $("#sel_todos").onchange = (e) => {
+      document.querySelectorAll("[data-sel]").forEach((c) => { c.checked = e.target.checked; c.onchange(); }); };
+    document.querySelectorAll("[data-edit]").forEach((b) => b.onclick = () => { editando = d.filas.find((v) => v.ref === b.dataset.edit); pintarBase(); });
+    contarSel();
+  }
+  const contarSel = () => { $("#n_sel").textContent = `${seleccion.size} seleccionado${seleccion.size === 1 ? "" : "s"}`; };
+
+  function pintarEditor() {
+    const v = editando;
+    $("#drawer").innerHTML = `<form class="card drawer" id="fe" autocomplete="off">
+      <h2>${esc(v.nombre || "Sin nombre")} <small class="muted">${esc(v.cedula)}</small></h2>
+      <div class="grid2" style="margin-bottom:10px">
+        <div><label class="f">Nombre</label><input id="e_nombre" value="${esc(v.nombre || "")}"></div>
+        <div><label class="f">Celular</label><input id="e_telefono" value="${esc(v.telefono || "")}"></div></div>
+      <div style="margin-bottom:10px"><label class="f">Comuna</label><select id="e_comuna">${opciones(CAT.comunas, v.comuna, "Sin dato")}</select></div>
+      <div style="margin-bottom:10px"><label class="f">Barrio</label><input id="e_barrio" list="e_barrios" value="${esc(v.barrio || "")}">
+        <datalist id="e_barrios">${[...new Set(CAT.barrios.map((b) => b.barrio))].map((b) => `<option value="${esc(b)}">`).join("")}</datalist></div>
+      <div class="grid2" style="margin-bottom:10px">
+        <div><label class="f">Edad</label><select id="e_edad">${opciones(CAT.rangos, v.rango_edad, "Sin dato")}</select></div>
+        <div><label class="f">Género</label><select id="e_genero">${opciones(CAT.generos, v.genero, "Sin dato")}</select></div></div>
+      <label class="f">Intereses</label>
+      <div class="chips" style="margin-bottom:10px">${CAT.intereses.map((i) => `<label class="chip"><input type="checkbox" name="e_int" value="${esc(i)}" ${v.intereses.includes(i) ? "checked" : ""}><span>${esc(i)}</span></label>`).join("")}</div>
+      <div style="margin-bottom:10px"><label class="f">Puesto de votación</label><input id="e_puesto" value="${esc(v.puesto || "")}"></div>
+      <div class="grid2" style="margin-bottom:10px">
+        <div><label class="f">Mesa</label><input id="e_mesa" inputmode="numeric" value="${esc(v.mesa ?? "")}"></div>
+        <div><label class="f">Municipio</label><input id="e_municipio" value="${esc(v.municipio || "")}"></div></div>
+      <div id="e_msg"></div>
+      <div class="grid2"><button type="button" class="btn" id="e_cerrar">Cerrar</button><button class="btn pri">Guardar</button></div>
+      ${yo().rol === "candidato" ? `<hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+        <p class="muted" style="margin:0 0 8px">Si la persona pide que se borren sus datos (Ley 1581):</p>
+        <button type="button" class="btn peligro" id="e_borrar">Borrar sus datos</button>` : ""}
+    </form>`;
+    $("#e_cerrar").onclick = () => { editando = null; pintarBase(); };
+    $("#fe").onsubmit = async (e) => {
+      e.preventDefault();
+      const r = await api("/api/base/editar", { method: "POST", body: { ref: v.ref, nombre: $("#e_nombre").value, telefono: $("#e_telefono").value,
+        comuna: $("#e_comuna").value, barrio: $("#e_barrio").value, rango_edad: $("#e_edad").value, genero: $("#e_genero").value,
+        intereses: [...document.querySelectorAll("input[name=e_int]:checked")].map((x) => x.value),
+        puesto: $("#e_puesto").value, mesa: $("#e_mesa").value, municipio: $("#e_municipio").value } });
+      if (!r.ok) return ($("#e_msg").innerHTML = `<div class="note err">${esc(r.error)}</div>`);
+      editando = null; await pintarBase(); aviso(r.mensaje);
+    };
+    if ($("#e_borrar")) $("#e_borrar").onclick = async (ev) => {
+      const b = ev.target;
+      if (!b.dataset.confirmar) { b.dataset.confirmar = "1"; b.textContent = "Confirmar: borrar definitivamente"; return; }
+      const r = await api("/api/base/suprimir", { method: "POST", body: { ref: v.ref } });
+      editando = null; await pintarBase(); aviso(r.ok ? r.mensaje : r.error, !r.ok);
+    };
+  }
+
+  async function reasignar() {
+    if (!seleccion.size) return aviso("Seleccione votantes en la tabla.", true);
+    const r = await api("/api/base/reasignar", { method: "POST", body: { refs: [...seleccion].slice(0, 90), gestor_id: $("#a_gest").value } });
+    seleccion.clear(); await cargarTabla(); aviso(r.ok ? r.mensaje : r.error, !r.ok);
+  }
+  async function invitar(body) {
+    if (body.refs && !body.refs.length) return aviso("Seleccione votantes en la tabla, o use Invitar a todos los filtrados.", true);
+    const id = $("#a_ev").value;
+    let total = 0;
+    if (body.refs) for (let i = 0; i < body.refs.length; i += 80) {
+      const r = await api(`/api/eventos/${id}/invitar`, { method: "POST", body: { refs: body.refs.slice(i, i + 80) } });
+      if (!r.ok) return aviso(r.error, true); total += r.agregados;
+    } else { const r = await api(`/api/eventos/${id}/invitar`, { method: "POST", body }); if (!r.ok) return aviso(r.error, true); total = r.agregados; }
+    await cargarEventos();
+    aviso(`${total} invitado(s) nuevos al evento. Los que ya estaban invitados no se duplican.`);
+  }
+
+  // ───────── exportar ─────────
+  function descargar(nombre, contenido, tipo) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([contenido], { type: tipo })); a.download = nombre;
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+  const fechaArchivo = () => new Date().toISOString().slice(0, 10);
+  async function filasExport(extra = {}) {
+    const d = await api("/api/base/exportar?" + qs({ ...filtros, ...extra }));
+    if (!d.ok) { aviso(d.error, true); return null; } return d.filas;
+  }
+  async function exportarCSV() {
+    const filas = await filasExport(); if (!filas) return;
+    const enc = ["Nombre", "Cedula", "Celular", "Comuna", "Barrio", "Edad", "Genero", "Intereses", "Puesto", "Mesa", "Municipio", "Gestor"];
+    const c = (x) => `"${String(x ?? "").replace(/"/g, '""')}"`;
+    const csv = "﻿" + [enc, ...filas.map((v) => [v.nombre, v.cedula, v.telefono, v.comuna, v.barrio, v.rango_edad, v.genero,
+      v.intereses.join(", "), v.puesto, v.mesa, v.municipio, v.gestor])].map((f) => f.map(c).join(";")).join("\r\n");
+    descargar(`votantes_${fechaArchivo()}.csv`, csv, "text/csv;charset=utf-8");
+    aviso(`${filas.length} votantes exportados. El archivo es personal y confidencial: no lo comparta.`);
+  }
+  const celular = (t) => { const d = String(t || "").replace(/\D/g, ""); return d.length === 10 && d[0] === "3" ? "+57" + d : d.length === 12 && d.startsWith("57") ? "+" + d : d ? d : ""; };
+  function vcf(filas, etiqueta) {
+    const con = filas.filter((v) => celular(v.telefono));
+    const txt = con.map((v) => ["BEGIN:VCARD", "VERSION:3.0",
+      `FN:${etiqueta} · ${(v.nombre || v.cedula).replace(/[\r\n;,]/g, " ")}${v.barrio ? " · " + v.barrio : ""}`,
+      `N:${(v.nombre || v.cedula).replace(/[\r\n;,]/g, " ")};${etiqueta};;;`,
+      `TEL;TYPE=CELL:${celular(v.telefono)}`, "END:VCARD"].join("\r\n")).join("\r\n");
+    return { txt, n: con.length, sin: filas.length - con.length };
+  }
+  async function exportarVCF(filas, nombre = "contactos") {
+    filas = filas || await filasExport({ telefono: "1" }); if (!filas) return;
+    const r = vcf(filas, "Soacha27");
+    if (!r.n) return aviso("Ninguna de estas personas tiene celular registrado.", true);
+    descargar(`${nombre}_${fechaArchivo()}.vcf`, r.txt, "text/vcard;charset=utf-8");
+    aviso(`${r.n} contactos descargados${r.sin ? ` (${r.sin} sin celular quedaron por fuera)` : ""}. Ábralo en el celular para guardarlos y luego arme la lista de difusión o el grupo buscando "Soacha27".`);
+  }
+
+  // ───────── eventos ─────────
+  async function cargarEventos() { const d = await api("/api/eventos"); eventos = d.ok ? d.eventos : []; }
+  const fechaLarga = (f) => { const t = new Date(f + "T12:00:00").toLocaleDateString("es-CO", { weekday: "long", day: "numeric", month: "long" }); return t[0].toUpperCase() + t.slice(1); };
+  async function pintarEventos() {
+    $("#main").innerHTML = `<div class="ev-grid">
+      <div>
+        <form class="card" id="fev" autocomplete="off" style="margin-bottom:16px"><h2>Nuevo evento</h2>
+          <div style="margin-bottom:10px"><label class="f">Nombre</label><input id="n_nombre" maxlength="100" placeholder="Reunión con líderes de Compartir"></div>
+          <div class="grid2" style="margin-bottom:10px"><div><label class="f">Fecha</label><input id="n_fecha" type="date"></div>
+            <div><label class="f">Hora</label><input id="n_hora" placeholder="5:00 p. m."></div></div>
+          <div style="margin-bottom:10px"><label class="f">Lugar</label><input id="n_lugar" maxlength="120"></div>
+          <div style="margin-bottom:10px"><label class="f">Descripción (opcional)</label><textarea id="n_desc" rows="2" maxlength="400"></textarea></div>
+          <div id="n_msg"></div>
+          <button class="btn pri" style="width:100%">Crear evento</button></form>
+        <div class="card"><h2>Eventos</h2>${eventos.length ? eventos.map((e) => `<div class="evento ${eventoActual?.id === e.id ? "activo" : ""}" data-ev="${e.id}" tabindex="0" role="button">
+            <b>${esc(e.nombre)}</b><span class="muted">${e.invitados} invitados</span>
+            <span class="muted">${esc(fechaLarga(e.fecha))}</span><span class="muted">${e.confirmados} confirmados</span></div>`).join("")
+          : `<p class="empty">Aún no hay eventos.</p>`}</div>
+      </div>
+      <div id="detalle">${eventoActual ? "" : `<div class="card"><p class="empty" style="margin:0">Elija un evento de la lista o cree uno nuevo. Para invitar personas, filtre en la pestaña Base de votantes y use "Invitar a todos los filtrados".</p></div>`}</div>
+    </div>`;
+    $("#fev").onsubmit = async (e) => {
+      e.preventDefault();
+      const r = await api("/api/eventos", { method: "POST", body: { nombre: $("#n_nombre").value, fecha: $("#n_fecha").value,
+        hora: $("#n_hora").value, lugar: $("#n_lugar").value, descripcion: $("#n_desc").value } });
+      if (!r.ok) return ($("#n_msg").innerHTML = `<div class="note err">${esc(r.error)}</div>`);
+      await cargarEventos(); eventoActual = { id: r.id }; pintarEventos();
+    };
+    document.querySelectorAll("[data-ev]").forEach((el) => {
+      const abrir = () => { eventoActual = { id: +el.dataset.ev }; pintarEventos(); };
+      el.onclick = abrir; el.onkeydown = (k) => { if (k.key === "Enter") abrir(); };
+    });
+    if (eventoActual) pintarDetalle();
+  }
+
+  let filtroEstado = "";
+  async function pintarDetalle() {
+    const d = await api(`/api/eventos/${eventoActual.id}`);
+    if (!d.ok) return ($("#detalle").innerHTML = `<div class="note err">${esc(d.error)}</div>`);
+    const e = d.evento, inv = d.invitados;
+    const cuenta = (est) => inv.filter((v) => est.includes(v.estado)).length;
+    const enlace = `${SITIO}?evento=${e.token}`;
+    const mensaje = `Hola, le invitamos a *${e.nombre}*.\n📅 ${fechaLarga(e.fecha)}${e.hora ? ", " + e.hora : ""}\n${e.lugar ? "📍 " + e.lugar + "\n" : ""}${e.descripcion ? "\n" + e.descripcion + "\n" : ""}\nConfirme su asistencia aquí con su cédula:\n${enlace}`;
+    const lista = inv.filter((v) => !filtroEstado || v.estado === filtroEstado);
+    const ESTADOS = { invitado: "Invitado", confirmado: "Confirmó", asistio: "Asistió", no_asiste: "No asiste" };
+    $("#detalle").innerHTML = `<div class="card">
+      <h2 style="margin-bottom:4px">${esc(e.nombre)}</h2>
+      <p class="muted" style="margin:0">${esc(fechaLarga(e.fecha))}${e.hora ? ", " + esc(e.hora) : ""}${e.lugar ? " · " + esc(e.lugar) : ""}</p>
+      <div class="cifras"><div><b>${inv.length}</b><span>invitados</span></div><div><b>${cuenta(["confirmado", "asistio"])}</b><span>confirmaron</span></div><div><b>${cuenta(["asistio"])}</b><span>asistieron</span></div></div>
+      <div class="herr">
+        <div><label class="f">Mensaje para WhatsApp</label><textarea id="ev_msg">${esc(mensaje)}</textarea>
+          <button class="btn pri" id="ev_copiar" style="margin-top:6px">Copiar mensaje</button></div>
+        <div>
+          <label class="f">Pasos para la lista de difusión o el grupo</label>
+          <ol style="margin:0 0 10px;padding-left:18px;font-size:.86rem">
+            <li>Descargue los contactos y ábralos en el celular para guardarlos.</li>
+            <li>En WhatsApp cree la lista de difusión o el grupo y busque "Soacha27".</li>
+            <li>Pegue el mensaje. Cada persona confirma con su cédula en el enlace.</li></ol>
+          <button class="btn" id="ev_vcf">Descargar contactos de los invitados</button>
+          <button class="btn" id="ev_nums" style="margin-top:6px">Copiar números</button>
+          <p class="muted" style="margin:8px 0 0">La lista de difusión solo le llega a quien tenga guardado su número. Para los demás, use el grupo.</p>
+        </div>
+      </div>
+      <form id="fasis" class="acciones" autocomplete="off" style="margin-bottom:12px">
+        <b>Registrar llegada</b><input id="as_ced" inputmode="numeric" placeholder="Cédula del asistente" style="width:200px"><button class="btn pri">Marcar asistencia</button>
+      </form>
+      <div id="ev_aviso"></div>
+      <div class="barra"><span class="muted">Ver:</span>
+        ${["", "invitado", "confirmado", "asistio", "no_asiste"].map((s) => `<button class="btn sm ${filtroEstado === s ? "pri" : ""}" data-est="${s}">${s ? ESTADOS[s] : "Todos"}</button>`).join("")}</div>
+      <div class="tabla">${lista.length ? `<table><thead><tr><th>Nombre</th><th>Celular</th><th>Barrio</th><th>Gestor</th><th>Estado</th></tr></thead><tbody>
+        ${lista.map((v) => `<tr><td class="nom"><b>${esc(v.nombre || "Sin nombre")}</b><small>${esc(v.cedula)}</small></td><td>${esc(v.telefono || "")}</td>
+          <td>${esc(v.barrio || "")}</td><td><small>${esc(v.gestor || "")}</small></td>
+          <td><select class="estado" data-ref="${v.ref}">${Object.entries(ESTADOS).map(([k, n]) => `<option value="${k}" ${v.estado === k ? "selected" : ""}>${n}</option>`).join("")}</select></td></tr>`).join("")}
+        </tbody></table>` : `<p class="empty" style="padding:16px">${inv.length ? "Nadie en este estado." : "Aún no hay invitados. Filtre en Base de votantes y use \"Invitar a todos los filtrados\"."}</p>`}</div>
+    </div>`;
+    const avisoEv = (t, err) => { $("#ev_aviso").innerHTML = `<div class="note ${err ? "err" : "ok"}">${esc(t)}</div>`; };
+    $("#ev_copiar").onclick = async () => { try { await navigator.clipboard.writeText($("#ev_msg").value); avisoEv("Mensaje copiado."); } catch { $("#ev_msg").select(); avisoEv("Seleccioné el mensaje: cópielo con Ctrl+C."); } };
+    $("#ev_vcf").onclick = () => { const r = vcf(inv, "Soacha27"); if (!r.n) return avisoEv("Ningún invitado tiene celular registrado.", true);
+      descargar(`invitados_${e.nombre.replace(/[^\w]+/g, "_").slice(0, 30)}.vcf`, r.txt, "text/vcard;charset=utf-8");
+      avisoEv(`${r.n} contactos descargados${r.sin ? `; ${r.sin} invitados no tienen celular` : ""}.`); };
+    $("#ev_nums").onclick = async () => { const nums = inv.map((v) => celular(v.telefono)).filter(Boolean).join("\n");
+      try { await navigator.clipboard.writeText(nums); avisoEv(`${nums.split("\n").filter(Boolean).length} números copiados.`); } catch { avisoEv("No se pudo copiar.", true); } };
+    $("#fasis").onsubmit = async (ev) => { ev.preventDefault();
+      const r = await api(`/api/eventos/${e.id}/estado`, { method: "POST", body: { cedula: $("#as_ced").value, estado: "asistio" } });
+      await pintarDetalle(); avisoEv(r.ok ? r.mensaje : r.error, !r.ok); $("#as_ced").focus(); };
+    document.querySelectorAll("[data-est]").forEach((b) => b.onclick = () => { filtroEstado = b.dataset.est; pintarDetalle(); });
+    document.querySelectorAll("select.estado").forEach((s) => s.onchange = async () => {
+      const r = await api(`/api/eventos/${e.id}/estado`, { method: "POST", body: { ref: s.dataset.ref, estado: s.value } });
+      if (!r.ok) avisoEv(r.error, true); else { await cargarEventos(); } });
+  }
+
+  sesion && sesion.usuario?.rol !== "gestor" ? iniciar() : pintarLogin();
+</script>
+</body>
+</html>
