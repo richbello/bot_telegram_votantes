@@ -49,6 +49,7 @@
        padding:8px 14px;border-radius:999px;cursor:pointer;transition:background .15s,border-color .15s}
   .btn:hover{border-color:#C5CED8}
   a.btn{text-decoration:none}
+  .guia a:not(.btn){color:var(--pri);font-weight:600}
   .btn.pri{background:var(--pri);border-color:var(--pri);color:#fff;border-radius:14px}
   .btn.pri:hover{background:#0B5A49}
   .btn.sm{padding:5px 11px;font-size:.78rem}
@@ -160,6 +161,9 @@
   .guia li{margin-bottom:4px}
   .resaltar{outline:2px solid var(--gold);outline-offset:6px;border-radius:12px}
   .pegar{margin:4px 0 12px}
+  .alternos{margin:12px 0 4px;font-size:.82rem;color:var(--muted)}
+  .alternos span{display:block;margin-bottom:8px}
+  .alternos .btn{display:flex;align-items:center;justify-content:center;text-align:center;border-radius:14px;padding:10px 8px;font-size:.82rem;line-height:1.2}
   .pegar textarea{margin-top:8px;font-size:.88rem;min-height:64px}
 </style>
 </head>
@@ -370,6 +374,18 @@
   const REGISTRADURIA = "https://consultacenso.registraduria.gov.co/";
   // Respaldo: página "Electoral" de la Registraduría, donde siempre está el botón "Lugar de votación"
   const REGISTRADURIA_RESPALDO = "https://www.registraduria.gov.co/-Electoral-797-.html";
+  // Canales oficiales alternos (boletín de la Registraduría): chatbot de WhatsApp y app aVotar
+  const REG_WHATSAPP = "https://wa.me/573102579432?text=Hola";
+  const REG_AVOTAR = /iPhone|iPad|iPod/i.test(navigator.userAgent)
+    ? "https://apps.apple.com/co/app/avotar/id6751607482"
+    : "https://play.google.com/store/search?q=aVotar%20Registradur%C3%ADa&c=apps";
+  const alternos = () => `<div class="alternos">
+      <span>¿La página dice "Demasiadas solicitudes"? Cambie entre wifi y datos, o consulte por otro canal oficial:</span>
+      <div class="grid2">
+        <a class="btn" href="${REG_WHATSAPP}" target="_blank" rel="noopener">WhatsApp de la Registraduría</a>
+        <a class="btn" href="${REG_AVOTAR}" target="_blank" rel="noopener">App aVotar</a>
+      </div>
+    </div>`;
   let completar = null; // votante pendiente que se está completando { ref, nombre, cedula }
 
   function panelGestor(d) {
@@ -385,6 +401,7 @@
         <h3>Puesto de ${esc(completar.nombre)}</h3>
         <p class="empty">Cédula ${esc(completar.cedula)}. Consulte el puesto con el votante y escríbalo aquí.</p>
         <a class="btn" href="${REGISTRADURIA}" target="_blank" rel="noopener" style="display:block;text-align:center;margin-bottom:10px">Consultar en la Registraduría</a>
+        ${alternos()}
         <div class="pegar">
                 <button type="button" class="btn pri" id="c_pegar" style="width:100%;padding:12px">Pegar resultado de la Registraduría</button>
                 <textarea id="c_txt" rows="3" placeholder="Si el botón no pega, mantenga presionado aquí y elija Pegar"></textarea>
@@ -422,6 +439,7 @@
               </ol>
               <button type="button" class="btn pri" id="r_ir" style="width:100%;padding:12px">Copiar cédula y consultar en la Registraduría</button>
               <div id="r_copiado" class="note ok hidden"></div>
+              ${alternos()}
               <p class="empty" style="font-size:.8rem;margin:8px 0 0">¿No abre? Use <a href="${REGISTRADURIA_RESPALDO}" target="_blank" rel="noopener">la página Electoral de la Registraduría</a> y toque "Lugar de votación".</p>
             </div>
             <label class="chk"><input type="checkbox" id="r_pend"><span>Todavía no sé el puesto: guardarlo como pendiente y completarlo después.</span></label>
