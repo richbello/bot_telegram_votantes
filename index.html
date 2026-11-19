@@ -521,6 +521,16 @@
     });
   }
 
+  // Enlace de acceso del equipo: ?equipo=1 abre el ingreso; &u=G-003 deja el código escrito
+  try {
+    const qs = new URLSearchParams(location.search);
+    const cod = (qs.get("u") || "").trim().toUpperCase();
+    if (qs.has("equipo") || cod) {
+      vista = "equipo";
+      if (/^(CANDIDATO|[KG]-\d{3,})$/.test(cod)) { try { localStorage.setItem("usuario", cod); } catch {} }
+      history.replaceState(null, "", location.pathname);
+    }
+  } catch {}
   render();
 </script>
 </body>
