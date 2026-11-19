@@ -167,18 +167,25 @@
     $("#equipo").innerHTML = `
       <div class="card">
         <h3>Ingreso del equipo</h3>
-        <p class="empty">Candidato, coordinadores y gestores: ingrese su PIN personal.</p>
+        <p class="empty">Ingrese su código de usuario (por ejemplo G-014) y su PIN.</p>
         <form id="flogin" autocomplete="off">
-          <div class="field"><input id="pin" type="password" inputmode="numeric" maxlength="10" placeholder="PIN" aria-label="PIN"></div>
+          <div class="field"><label>Código de usuario</label><input id="lusr" maxlength="12" placeholder="G-014 · K-003 · CANDIDATO" autocapitalize="characters"></div>
+          <div class="field"><label>PIN</label><input id="pin" type="password" inputmode="numeric" maxlength="10" placeholder="••••••"></div>
           ${error ? `<div class="note err">${esc(error)}</div>` : ""}
           <button class="btn pri" style="width:100%;padding:10px">Ingresar</button>
         </form>
       </div>`;
-    $("#pin").focus();
+    let ultimo = ""; try { ultimo = localStorage.getItem("usuario") || ""; } catch {}
+    $("#lusr").value = ultimo;
+    (ultimo ? $("#pin") : $("#lusr")).focus();
     $("#flogin").onsubmit = async (e) => {
       e.preventDefault();
-      const d = await api("/api/login", { method: "POST", body: { pin: $("#pin").value } });
+      let usuario = $("#lusr").value.trim().toUpperCase().replace(/\s+/g, "");
+      if (/^[KG]\d+$/.test(usuario)) usuario = usuario[0] + "-" + usuario.slice(1).padStart(3, "0");
+      if (!usuario) return pintarLogin("Escriba su código de usuario.");
+      const d = await api("/api/login", { method: "POST", body: { usuario, pin: $("#pin").value } });
       if (!d.ok) return pintarLogin(d.error);
+      try { localStorage.setItem("usuario", usuario); } catch {}
       guardarSesion({ token: d.token, usuario: d.usuario });
       cargarPanel();
     };
@@ -186,18 +193,21 @@
 
   // ───────── panel ─────────
   let flash = null; // mensaje o PIN a mostrar tras recargar el panel
+  let ultimoLote = null; // resultado de la última carga masiva (PINs), visible hasta que se cierre
   async function cargarPanel() {
     $("#equipo").innerHTML = `<p class="empty">Cargando…</p>`;
     const d = await api("/api/panel");
     if (!d.ok) return sesion ? ($("#equipo").innerHTML = `<div class="note err">${esc(d.error)}</div>`) : pintarLogin(d.error);
     const u = d.usuario;
     let html = `<div class="who"><b>${esc(u.nombre)}</b><span class="tag">${ROL[u.rol]}${u.id !== "CANDIDATO" ? " · " + esc(u.id) : ""}</span>
+      <button class="btn sm" id="refrescar" title="Traer los datos más recientes">↻ Actualizar</button>
       <button class="btn sm" id="salir">Salir</button></div>`;
-    html += flashHtml();
+    html += flashHtml() + loteHtml();
     if (u.rol === "gestor") html += panelGestor(d);
     else html += panelEquipo(d, u);
     $("#equipo").innerHTML = html;
-    $("#salir").onclick = () => { guardarSesion(null); pintarLogin(); };
+    $("#salir").onclick = () => { guardarSesion(null); ultimoLote = null; pintarLogin(); };
+    $("#refrescar").onclick = () => cargarPanel();
     if (u.rol === "gestor") enlazarGestor();
     else enlazarEquipo(d, u);
   }
@@ -206,8 +216,35 @@
     if (!flash) return "";
     const f = flash; flash = null;
     if (f.pin) return `<div class="pinbox">PIN de <b style="font-size:1rem;letter-spacing:0;display:inline">${esc(f.nombre)}</b> (${esc(f.id)})
-      <b>${esc(f.pin)}</b><span class="empty">Entréguelo en persona. No se volverá a mostrar.</span></div>`;
+      <b>${esc(f.pin)}</b><span class="empty">Ingresa con el código <b style="font-size:.85rem;letter-spacing:0;display:inline">${esc(f.id)}</b> y este PIN. Entréguelo en persona: no se volverá a mostrar.</span></div>`;
     return `<div class="note ${f.err ? "err" : "ok"}">${esc(f.texto)}</div>`;
+  }
+
+  function loteHtml() {
+    if (!ultimoLote) return "";
+    const { creados, errores } = ultimoLote;
+    return `<div class="card" style="border:1px dashed var(--acc)">
+      <h3>Resultado de la carga · ${creados.length} creados${errores.length ? ` · ${errores.length} con error` : ""}</h3>
+      ${creados.length ? `<p class="empty">Descargue la lista y entregue cada PIN en persona. Los PIN no se vuelven a mostrar.</p>
+        <button class="btn pri" id="lote_csv" style="width:100%;padding:9px;margin-bottom:8px">⬇ Descargar lista de PIN (Excel/CSV)</button>
+        <table><tr><th>Código</th><th>Nombre</th><th>Rol</th><th class="n">PIN</th></tr>
+        ${creados.map((c) => `<tr><td>${esc(c.id)}</td><td>${esc(c.nombre)}${c.coordinador ? `<br><small class="empty">${esc(c.coordinador)}</small>` : ""}</td>
+          <td>${ROL[c.rol]}</td><td class="n"><b>${esc(c.pin)}</b></td></tr>`).join("")}</table>` : ""}
+      ${errores.length ? `<div class="note err">${errores.map((e) => `Fila ${e.fila}${e.nombre ? " (" + esc(e.nombre) + ")" : ""}: ${esc(e.error)}`).join("<br>")}</div>` : ""}
+      <button class="btn sm" id="lote_cerrar" style="margin-top:8px">Cerrar (ya guardé los PIN)</button>
+    </div>`;
+  }
+
+  function descargarLote() {
+    const filas = [["Codigo", "Nombre", "Rol", "Coordinador", "PIN"],
+      ...ultimoLote.creados.map((c) => [c.id, c.nombre, ROL[c.rol], c.coordinador || "", { pin: c.pin }])];
+    // El PIN va como ="012345" para que Excel no borre los ceros iniciales
+    const celda = (v) => v && v.pin ? `"=""${v.pin}"""` : `"${String(v).replace(/"/g, '""')}"`;
+    const csv = "\ufeff" + filas.map((f) => f.map(celda).join(";")).join("\r\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    a.download = `pines_equipo_${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
   }
 
   function barras(lista) {
@@ -325,7 +362,17 @@
           <td class="n">${g.votantes}</td><td class="n">${acciones(g)}</td></tr>`).join("")}
       </table>` : `<p class="empty">Aún no hay gestores.</p>`}</div>`;
 
-    return `<div class="kpis">${kpis}</div>${crear}${tCoord}${tGest}
+    const masiva = `<form id="flote" class="card" autocomplete="off"><h3>Carga masiva</h3>
+      <p class="empty">${u.rol === "candidato"
+        ? "Una persona por línea: <b>Nombre ; rol ; coordinador</b>. El rol es coordinador o gestor; el coordinador puede ser su código (K-001) o su nombre exacto, incluso si se crea en esta misma lista. Puede pegar tres columnas copiadas de Excel."
+        : "Un gestor por línea, solo el nombre. Quedan a su cargo."} Máximo 100 por carga.</p>
+      <textarea id="l_txt" rows="5" style="width:100%;background:#0f1720;border:1px solid #ffffff22;color:var(--txt);border-radius:10px;padding:10px;font:inherit;font-size:.85rem"
+        placeholder="${u.rol === "candidato" ? "Ana Torres; coordinador\nLuis Gómez; gestor; Ana Torres\nMarta Ruiz; gestor; K-001" : "Luis Gómez\nMarta Ruiz"}"></textarea>
+      <div id="l_msg"></div>
+      <button class="btn pri" style="width:100%;padding:10px;margin-top:6px">Crear todos y generar PIN</button>
+    </form>`;
+
+    return `<div class="kpis">${kpis}</div>${crear}${masiva}${tCoord}${tGest}
       <div class="card"><h3>Votantes por puesto</h3>${barras(d.por_puesto)}</div>`;
   }
 
@@ -341,6 +388,23 @@
       const r = await api("/api/usuarios", { method: "POST", body });
       if (!r.ok) return ($("#u_msg").innerHTML = `<div class="note err">${esc(r.error)}</div>`);
       flash = { pin: r.pin, nombre: r.usuario.nombre, id: r.usuario.id };
+      cargarPanel();
+    };
+    if ($("#lote_csv")) $("#lote_csv").onclick = descargarLote;
+    if ($("#lote_cerrar")) $("#lote_cerrar").onclick = () => { ultimoLote = null; cargarPanel(); };
+    $("#flote").onsubmit = async (e) => {
+      e.preventDefault();
+      const lineas = $("#l_txt").value.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      if (!lineas.length) return ($("#l_msg").innerHTML = `<div class="note err">Pegue al menos un nombre.</div>`);
+      const filas = lineas.map((l) => {
+        const [nombre, rol, coordinador] = l.split(/\t|;/).map((x) => (x || "").trim());
+        return u.rol === "candidato" ? { nombre, rol: (rol || "gestor").toLowerCase(), coordinador } : { nombre, rol: "gestor" };
+      });
+      const btn = e.submitter; if (btn) { btn.disabled = true; btn.textContent = "Creando…"; }
+      const r = await api("/api/usuarios/lote", { method: "POST", body: { filas } });
+      if (!r.ok) { if (btn) { btn.disabled = false; btn.textContent = "Crear todos y generar PIN"; }
+        return ($("#l_msg").innerHTML = `<div class="note err">${esc(r.error)}</div>`); }
+      ultimoLote = r;
       cargarPanel();
     };
     document.querySelectorAll("[data-estado]").forEach((b) => b.onclick = async () => {
