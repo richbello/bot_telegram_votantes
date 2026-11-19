@@ -93,7 +93,9 @@
   <nav class="hidden" id="tabs" role="tablist">
     <button role="tab" aria-selected="true" data-tab="base">Base de votantes</button>
     <button role="tab" aria-selected="false" data-tab="eventos">Eventos</button>
+    <button role="tab" aria-selected="false" data-tab="mant" id="tab_mant" class="hidden">Mantenimiento</button>
   </nav>
+  <button class="btn claro hidden" id="refrescar" title="Traer los datos más recientes">↻ Actualizar</button>
   <span class="quien" id="quien"></span>
   <button class="btn claro hidden" id="salir">Salir</button>
 </header>
@@ -118,7 +120,7 @@
 
   // ───────── ingreso ─────────
   function pintarLogin(error = "") {
-    $("#tabs").classList.add("hidden"); $("#salir").classList.add("hidden"); $("#quien").textContent = "";
+    $("#tabs").classList.add("hidden"); $("#salir").classList.add("hidden"); $("#refrescar").classList.add("hidden"); $("#quien").textContent = "";
     $("#main").innerHTML = `<form class="card" id="login" autocomplete="off"><h2>Ingreso</h2>
       <p class="empty" style="margin-top:0">Para el candidato y los coordinadores.</p>
       <div style="margin-bottom:10px"><label class="f">Código de usuario</label><input id="l_u" placeholder="CANDIDATO o K-001"></div>
@@ -145,7 +147,8 @@
   const yo = () => sesion.usuario;
 
   async function iniciar() {
-    $("#tabs").classList.remove("hidden"); $("#salir").classList.remove("hidden");
+    $("#tabs").classList.remove("hidden"); $("#salir").classList.remove("hidden"); $("#refrescar").classList.remove("hidden");
+    $("#tab_mant").classList.toggle("hidden", yo().rol !== "candidato");
     $("#quien").textContent = yo().rol === "candidato" ? "Candidato" : `${yo().nombre} · Coordinador ${yo().id}`;
     const c = await api("/api/catalogos"); if (!c.ok) return;
     CAT = c;
@@ -157,8 +160,12 @@
   function mostrar(t) {
     tab = t;
     document.querySelectorAll("#tabs button").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === t));
-    t === "base" ? pintarBase() : pintarEventos();
+    if (t === "base") pintarBase(); else if (t === "eventos") pintarEventos(); else pintarMant();
   }
+  $("#refrescar").onclick = async () => {
+    const c = await api("/api/catalogos"); if (c.ok) CAT = c;
+    await cargarEventos(); mostrar(tab);
+  };
 
   const opciones = (lista, sel, vacio = "Todos") => `<option value="">${vacio}</option>` +
     lista.map((x) => { const v = typeof x === "string" ? x : x.id, n = typeof x === "string" ? x : `${x.nombre} (${x.id})`;
@@ -224,7 +231,7 @@
       coordinador: v("coordinador"), gestor: v("gestor"), puesto: v("puesto"),
       telefono: $("#f_telefono").checked ? "1" : "", pendiente: $("#f_pendiente").checked ? "1" : "" };
   }
-  const aviso = (t, err) => { $("#msg").innerHTML = `<div class="note ${err ? "err" : "ok"}">${esc(t)}</div>`; };
+  const aviso = (t, err) => { const el = $("#msg") || $("#m_msg"); if (el) el.innerHTML = `<div class="note ${err ? "err" : "ok"}">${esc(t)}</div>`; };
 
   async function cargarTabla() {
     const d = await api("/api/base?" + qs({ ...filtros, offset: pagina * 50 }));
@@ -445,6 +452,54 @@
     document.querySelectorAll("select.estado").forEach((s) => s.onchange = async () => {
       const r = await api(`/api/eventos/${e.id}/estado`, { method: "POST", body: { ref: s.dataset.ref, estado: s.value } });
       if (!r.ok) avisoEv(r.error, true); else { await cargarEventos(); } });
+  }
+
+  // ───────── mantenimiento ─────────
+  const ACCIONES = {
+    desbloquear: { titulo: "Desbloquear usuarios", texto: "Quita el bloqueo de 15 minutos a quien falló 5 veces el PIN. No borra datos.", peligro: false },
+    borrar_eventos: { titulo: "Borrar eventos e invitaciones", texto: "Borra todos los eventos con sus invitados, confirmaciones y asistencias.", peligro: true, respaldo: false },
+    borrar_auditoria: { titulo: "Borrar historial de acciones", texto: "Borra el registro de quién hizo qué en el sistema.", peligro: true, respaldo: false },
+    dejar_en_blanco: { titulo: "Dejar el equipo en blanco", texto: "Borra coordinadores, gestores, las personas que registraron, sus datos de contacto y los eventos. Conserva la base oficial de votantes. Antes se descarga un Excel con las personas registradas.", peligro: true, respaldo: true },
+  };
+  async function pintarMant() {
+    $("#main").innerHTML = `<p class="empty">Cargando…</p>`;
+    const d = await api("/api/mantenimiento");
+    if (!d.ok) return ($("#main").innerHTML = `<div class="note err">${esc(d.error)}</div>`);
+    const e = d.estado;
+    const cifra = (n, t) => `<div><b>${n}</b><span>${t}</span></div>`;
+    $("#main").innerHTML = `<div class="ev-grid">
+      <div class="card"><h2>Estado de la base</h2>
+        <div class="cifras" style="grid-template-columns:repeat(2,1fr)">
+          ${cifra(e.votantes, "votantes en la base")}${cifra(e.registrados, "registrados por el equipo")}
+          ${cifra(e.sin_puesto, "sin puesto")}${cifra(e.coordinadores, "coordinadores")}
+          ${cifra(e.gestores, "gestores")}${cifra(e.eventos, "eventos")}
+          ${cifra(e.invitaciones, "invitaciones")}${cifra(e.bloqueados, "usuarios bloqueados")}
+        </div>
+        <h2 style="margin-top:16px">Últimas acciones</h2>
+        ${d.ultimas.length ? `<table><tbody>${d.ultimas.map((a) => `<tr><td><small>${esc(a.ts)}</small></td><td>${esc(a.usuario_id || "")}</td><td>${esc(a.accion)}<br><small>${esc(a.detalle || "")}</small></td></tr>`).join("")}</tbody></table>` : `<p class="empty">Sin acciones registradas.</p>`}
+      </div>
+      <div>
+        <div id="m_msg"></div>
+        ${Object.entries(ACCIONES).map(([k, a]) => `<form class="card" data-acc="${k}" style="margin-bottom:12px" autocomplete="off">
+          <h2 style="margin-bottom:4px">${a.titulo}</h2><p class="muted" style="margin:0 0 10px">${a.texto}</p>
+          ${a.peligro ? `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input name="conf" placeholder="Escriba BORRAR" style="width:180px">
+            <button class="btn peligro">${a.titulo}</button></div>` : `<button class="btn pri">${a.titulo}</button>`}
+        </form>`).join("")}
+        <p class="muted">Para recargar la base oficial de votantes o borrarla por completo use el manual de comandos o el menú <code>mantenimiento.ps1</code>; esas operaciones no están en la pantalla para evitar errores.</p>
+      </div></div>`;
+    document.querySelectorAll("[data-acc]").forEach((f) => f.onsubmit = async (ev) => {
+      ev.preventDefault();
+      const k = f.dataset.acc, a = ACCIONES[k], conf = f.conf ? f.conf.value.trim() : "";
+      const msg = (t, err) => { $("#m_msg").innerHTML = `<div class="note ${err ? "err" : "ok"}">${esc(t)}</div>`; window.scrollTo(0, 0); };
+      if (a.peligro && conf !== "BORRAR") return msg("Escriba BORRAR en mayúsculas para confirmar.", true);
+      if (a.respaldo) {
+        const filtrosAntes = filtros; filtros = {};
+        await exportarCSV(); filtros = filtrosAntes;
+      }
+      const r = await api("/api/mantenimiento", { method: "POST", body: { accion: k, confirmacion: conf } });
+      if (r.ok) { const c = await api("/api/catalogos"); if (c.ok) CAT = c; await cargarEventos(); seleccion.clear(); editando = null; eventoActual = null; }
+      await pintarMant(); msg(r.ok ? r.mensaje : r.error, !r.ok);
+    });
   }
 
   sesion && sesion.usuario?.rol !== "gestor" ? iniciar() : pintarLogin();

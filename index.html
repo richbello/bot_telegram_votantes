@@ -110,7 +110,7 @@
   .who{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
   .who .quien{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
   .who b{font-family:var(--display);font-size:1.35rem;font-weight:700;letter-spacing:-.01em;line-height:1.1}
-  #refrescar{font-size:1rem;padding:5px 12px}
+  .herr-panel{display:flex;gap:6px;flex-wrap:wrap}
   .tag{font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--pri-soft);color:var(--pri)}
   .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px;margin-bottom:12px}
   .kpis div{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px 10px}
@@ -191,7 +191,9 @@
   <section class="view" id="chat">
     <div id="msgs" aria-live="polite"></div>
     <div class="quick">
-      <button class="btn" data-modo="privacidad">Cómo usamos sus datos</button>
+      <button class="btn" data-modo="privacidad">Privacidad</button>
+      <button class="btn" id="c_limpiar">Limpiar</button>
+      <button class="btn" id="c_actualizar">↻ Actualizar</button>
     </div>
     <form class="bar" id="f" autocomplete="off">
       <input id="in" inputmode="numeric" placeholder="Número de cédula" aria-label="Número de cédula">
@@ -269,7 +271,12 @@
     } catch { add("⚠️ No pudimos conectar con el servidor. Intente de nuevo."); }
     finally { send.disabled = false; input.focus(); }
   };
-  add("Hola. Escriba su número de cédula, sin puntos ni espacios, y le mostramos dónde le toca votar.");
+  const saludo = () => add("Hola. Escriba su número de cédula, sin puntos ni espacios, y le mostramos dónde le toca votar.");
+  saludo();
+  $("#c_limpiar").onclick = () => { msgs.innerHTML = ""; document.querySelector(".app").classList.remove("compacto"); saludo(); input.value = ""; input.focus(); };
+  // Recarga la app sin caché para traer la versión más reciente
+  const recargarApp = () => { const u = new URL(location.href); u.searchParams.set("v", Date.now()); location.replace(u.toString()); };
+  $("#c_actualizar").onclick = recargarApp;
 
   // ───────── navegación ─────────
   let vista = "chat";
@@ -324,14 +331,20 @@
     const u = d.usuario;
     let html = `<div class="who"><div class="quien"><b>${esc(u.nombre)}</b>
         ${u.rol !== "candidato" ? `<span class="tag">${ROL[u.rol]} ${esc(u.id)}</span>` : ""}</div>
-      <button class="btn sm" id="refrescar" aria-label="Actualizar datos" title="Actualizar datos">↻</button>
-      <button class="btn sm" id="salir">Salir</button></div>`;
+      <div class="herr-panel"><button class="btn sm" id="refrescar" title="Traer los datos más recientes">↻ Actualizar</button>
+      <button class="btn sm" id="limpiar" title="Vaciar formularios y mensajes">Limpiar</button>
+      <button class="btn sm" id="salir">Salir</button></div></div>`;
     html += flashHtml() + loteHtml();
     if (u.rol === "gestor") html += panelGestor(d);
     else html += panelEquipo(d, u);
     $("#equipo").innerHTML = html;
     $("#salir").onclick = () => { guardarSesion(null); ultimoLote = null; completar = null; pintarLogin(); };
-    $("#refrescar").onclick = () => cargarPanel();
+    $("#refrescar").onclick = () => { flash = { texto: "Datos actualizados." }; cargarPanel(); };
+    $("#limpiar").onclick = () => {
+      try { sessionStorage.removeItem("borrador"); } catch {}
+      ultimoLote = null; completar = null; flash = { texto: "Formularios limpios." };
+      cargarPanel();
+    };
     if (u.rol === "gestor") enlazarGestor();
     else enlazarEquipo(d, u);
   }
@@ -738,7 +751,16 @@ function leerRegistraduria(texto) {
     </form>`;
 
     const admin = `<a class="btn pri" href="admin.html" target="_blank" rel="noopener" style="display:block;text-align:center;padding:12px;margin-bottom:12px">Abrir base de datos y eventos</a>`;
-    return `<div class="kpis">${kpis}</div>${admin}${crear}${masiva}${tCoord}${tGest}
+    const mant = u.rol === "candidato" ? `<div class="card" id="mant"><h3>Mantenimiento</h3>
+      <p class="empty" style="margin-top:0">Para borrar escriba BORRAR en la casilla. "Dejar en blanco" conserva la base oficial de votantes.</p>
+      <div id="m_msg"></div>
+      <button class="btn" data-mant="desbloquear" style="width:100%;margin-bottom:8px">Desbloquear usuarios</button>
+      <input id="m_conf" placeholder="Escriba BORRAR para confirmar" style="margin-bottom:8px">
+      <div class="grid2"><button class="btn" data-mant="borrar_eventos" style="color:var(--err)">Borrar eventos</button>
+        <button class="btn" data-mant="borrar_auditoria" style="color:var(--err)">Borrar historial</button></div>
+      <button class="btn" data-mant="dejar_en_blanco" style="width:100%;margin-top:8px;color:var(--err)">Dejar el equipo en blanco</button>
+    </div>` : "";
+    return `<div class="kpis">${kpis}</div>${admin}${crear}${masiva}${tCoord}${tGest}${mant}
       <div class="card"><h3>Votantes por puesto</h3>${barras(d.por_puesto)}</div>`;
   }
 
@@ -760,6 +782,16 @@ function leerRegistraduria(texto) {
       const q = e.target.value.trim().toLowerCase();
       document.querySelectorAll("#g_lista .persona").forEach((li) => li.classList.toggle("hidden", q && !li.dataset.buscar.includes(q)));
     };
+    document.querySelectorAll("[data-mant]").forEach((b) => b.onclick = async () => {
+      const accion = b.dataset.mant, conf = $("#m_conf").value.trim();
+      if (accion !== "desbloquear" && conf !== "BORRAR") {
+        $("#m_msg").innerHTML = `<div class="note err">Escriba BORRAR en la casilla para confirmar.</div>`; return;
+      }
+      b.disabled = true;
+      const r = await api("/api/mantenimiento", { method: "POST", body: { accion, confirmacion: conf } });
+      flash = { texto: r.ok ? r.mensaje : r.error, err: !r.ok };
+      ultimoLote = null; cargarPanel();
+    });
     if ($("#lote_csv")) $("#lote_csv").onclick = descargarLote;
     if ($("#lote_cerrar")) $("#lote_cerrar").onclick = () => { ultimoLote = null; cargarPanel(); };
     $("#flote").onsubmit = async (e) => {
