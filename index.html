@@ -3,92 +3,167 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Consulta de Puesto de Votación · Soacha 2027</title>
+<title>¿Dónde voto? Soacha 2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#0E6B57">
 <style>
-  :root{--bg:#0f1720;--card:#16212d;--bot:#1f2d3b;--user:#1e7a4f;--txt:#e8eef4;--mut:#8aa0b4;--acc:#2fbf71;--err:#ff7a7a;--line:#ffffff14}
+  :root{
+    --bg:#F3F5F8; --surface:#FFFFFF; --ink:#0F2A3D; --muted:#5E6F7E; --line:#E2E7ED;
+    --pri:#0E6B57; --pri-ink:#FFFFFF; --pri-soft:#E3F1EC; --gold:#B8892B; --err:#B42318; --err-soft:#FDECEA;
+    --display:"Bricolage Grotesque", system-ui, sans-serif; --body:"Figtree", system-ui, sans-serif;
+  }
   *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt);
-       min-height:100vh;display:flex;justify-content:center;padding:16px}
-  .app{width:100%;max-width:560px;background:var(--card);border-radius:16px;display:flex;flex-direction:column;
-       height:calc(100vh - 32px);overflow:hidden;box-shadow:0 10px 40px #0006}
-  header{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
-  header .t{flex:1}
-  header h1{margin:0;font-size:1.05rem}
-  header p{margin:3px 0 0;color:var(--mut);font-size:.8rem}
-  .btn{background:transparent;border:1px solid #ffffff2a;color:var(--txt);padding:7px 11px;border-radius:999px;cursor:pointer;font-size:.82rem}
-  .btn:hover{border-color:var(--acc)}
-  .btn.pri{background:var(--acc);border-color:var(--acc);color:#062;font-weight:700;border-radius:10px}
-  .btn.sm{padding:4px 9px;font-size:.75rem}
+  html,body{height:100%}
+  body{margin:0;font-family:var(--body);background:var(--bg);color:var(--ink);font-size:16px;line-height:1.45;
+       -webkit-font-smoothing:antialiased;display:flex;justify-content:center}
+  .app{width:100%;max-width:520px;height:100dvh;display:flex;flex-direction:column;background:var(--bg);position:relative}
+  @media (min-width:600px){
+    body{padding:24px 0}
+    .app{height:calc(100dvh - 48px);border-radius:28px;overflow:hidden;box-shadow:0 1px 2px rgba(15,42,61,.06),0 24px 60px -20px rgba(15,42,61,.25)}
+  }
+  :focus-visible{outline:3px solid #7CC4AE;outline-offset:2px}
+
+  /* Encabezado */
+  header{background:var(--pri);color:var(--pri-ink);padding:18px 20px 22px;display:flex;align-items:flex-start;gap:12px;
+         padding-top:max(18px, env(safe-area-inset-top))}
+  header .t{flex:1;min-width:0}
+  header h1{margin:0;font-family:var(--display);font-weight:800;font-size:2rem;line-height:1;letter-spacing:-.02em}
+  header p{margin:8px 0 0;font-size:.92rem;opacity:.85}
+  header .prueba{display:inline-block;margin-top:10px;font-size:.72rem;font-weight:600;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.16)}
+  #toggle{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);color:#fff;font-weight:600;white-space:nowrap}
+  #toggle:hover{background:rgba(255,255,255,.22)}
+
+  /* Botones y campos */
+  .btn{font:inherit;font-size:.86rem;font-weight:600;background:var(--surface);border:1px solid var(--line);color:var(--ink);
+       padding:8px 14px;border-radius:999px;cursor:pointer;transition:background .15s,border-color .15s}
+  .btn:hover{border-color:#C5CED8}
+  .btn.pri{background:var(--pri);border-color:var(--pri);color:#fff;border-radius:14px}
+  .btn.pri:hover{background:#0B5A49}
+  .btn.sm{padding:5px 11px;font-size:.78rem}
   .btn:disabled{opacity:.5;cursor:default}
+  input,select,textarea{font:inherit;font-size:1rem;background:var(--surface);border:1.5px solid var(--line);color:var(--ink);
+       padding:12px 14px;border-radius:14px;width:100%}
+  input::placeholder,textarea::placeholder{color:#97A4B0}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 4px var(--pri-soft)}
   .view{flex:1;display:flex;flex-direction:column;min-height:0}
   .hidden{display:none!important}
-  #msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
-  .msg{max-width:85%;padding:10px 13px;border-radius:14px;line-height:1.4;white-space:pre-line;font-size:.95rem}
-  .bot{background:var(--bot);align-self:flex-start;border-bottom-left-radius:4px}
-  .user{background:var(--user);align-self:flex-end;border-bottom-right-radius:4px}
-  .msg a{color:var(--acc)}
-  .quick{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 10px}
-  form.bar{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
-  input,select{background:#0f1720;border:1px solid #ffffff22;color:var(--txt);padding:10px 12px;border-radius:10px;font-size:.95rem;width:100%}
-  input:focus,select:focus{outline:2px solid var(--acc);border-color:transparent}
-  form.bar input{flex:1}
-  footer{color:var(--mut);font-size:.72rem;text-align:center;padding:0 12px 10px}
+
+  /* Chat */
+  #msgs{flex:1;overflow-y:auto;padding:20px 16px 8px;display:flex;flex-direction:column;gap:10px}
+  .msg{max-width:86%;padding:12px 15px;border-radius:20px;white-space:pre-line;font-size:1rem}
+  .bot{background:var(--surface);align-self:flex-start;border-bottom-left-radius:6px;border:1px solid var(--line)}
+  .user{background:var(--ink);color:#fff;align-self:flex-end;border-bottom-right-radius:6px;font-weight:600;letter-spacing:.02em}
+  .msg a{color:var(--pri);font-weight:600}
+  .msg.rich{padding:0;background:none;border:0;max-width:100%;width:100%;white-space:normal}
+
+  /* Pase de votación */
+  .pase{background:var(--surface);border-radius:24px;border:1px solid var(--line);overflow:hidden;
+        box-shadow:0 1px 2px rgba(15,42,61,.05),0 14px 30px -18px rgba(15,42,61,.35)}
+  .pase-cab{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:var(--pri-soft);
+        color:var(--pri);font-size:.8rem;font-weight:700}
+  .pase-cuerpo{display:grid;grid-template-columns:1fr auto;gap:14px;padding:16px 18px 18px;align-items:end}
+  .pase h3{margin:0 0 6px;font-family:var(--display);font-weight:700;font-size:1.3rem;line-height:1.15;letter-spacing:-.01em}
+  .pase .dir{margin:0;color:var(--muted);font-size:.92rem}
+  .pase-mesa{text-align:center;border-left:2px dashed var(--line);padding-left:16px}
+  .pase-mesa small{display:block;color:var(--muted);font-size:.8rem;font-weight:600}
+  .pase-mesa b{display:block;font-family:var(--display);font-weight:800;font-size:4.2rem;line-height:.9;color:var(--gold);letter-spacing:-.04em}
+  .pase-pie{display:flex;gap:8px;padding:0 18px 18px}
+  .pase-pie a{flex:1;text-align:center;text-decoration:none;padding:11px;border-radius:14px;font-weight:700;font-size:.92rem}
+  .pase-pie .ir{background:var(--pri);color:#fff}
+  .pase-pie .otra{background:var(--bg);color:var(--ink);cursor:pointer}
+  @media (prefers-reduced-motion:no-preference){
+    .pase{animation:aparece .45s cubic-bezier(.2,.8,.2,1)}
+    @keyframes aparece{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+  }
+
+  .quick{display:flex;gap:8px;overflow-x:auto;padding:6px 16px 10px;scrollbar-width:none}
+  .quick .btn{flex:none}
+  .app.modo-equipo header{padding-bottom:16px}
+  .app.modo-equipo header h1{font-size:1.4rem}
+  .app.modo-equipo header p,.app.modo-equipo header .prueba{display:none}
+  form.bar{display:flex;gap:8px;padding:12px 14px;background:var(--surface);border-top:1px solid var(--line);
+           padding-bottom:max(12px, env(safe-area-inset-bottom))}
+  form.bar input{flex:1;font-size:1.1rem;padding:14px 16px;letter-spacing:.03em}
+  form.bar .btn.pri{padding:0 20px;font-size:1rem}
+  footer{color:var(--muted);font-size:.74rem;text-align:center;padding:0 16px 10px;background:var(--surface)}
+
   /* Equipo */
-  #equipo{overflow-y:auto;padding:16px}
-  .card{background:var(--bot);border-radius:12px;padding:14px;margin-bottom:12px}
-  .card h3{margin:0 0 10px;font-size:.78rem;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
-  .who{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-  .who b{flex:1}
-  .tag{font-size:.7rem;padding:2px 8px;border-radius:999px;background:#2fbf7122;color:var(--acc)}
-  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:12px}
-  .kpis div{background:var(--bot);border-radius:10px;padding:10px;text-align:center}
-  .kpis b{display:block;font-size:1.35rem;color:var(--acc)}
-  .kpis span{font-size:.72rem;color:var(--mut)}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .field{margin-bottom:8px}
-  .field label{display:block;font-size:.75rem;color:var(--mut);margin-bottom:4px}
-  .chk{display:flex;gap:8px;align-items:flex-start;font-size:.78rem;color:var(--mut);margin:8px 0}
-  .chk input{width:auto;margin-top:2px}
-  .note{font-size:.8rem;padding:8px 10px;border-radius:8px;margin:8px 0;background:#0f1720}
-  .note.ok{color:var(--acc)} .note.err{color:var(--err)}
-  .pinbox{background:#0f1720;border:1px dashed var(--acc);border-radius:10px;padding:12px;text-align:center;margin-top:10px}
-  .pinbox b{display:block;font-size:1.8rem;letter-spacing:.3em;color:var(--acc);margin:4px 0}
-  table{width:100%;border-collapse:collapse;font-size:.8rem}
-  th{text-align:left;color:var(--mut);font-weight:500;padding:6px 4px;border-bottom:1px solid var(--line)}
-  td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-align:middle}
-  td.n{text-align:right;white-space:nowrap}
+  #equipo{overflow-y:auto;padding:18px 16px 28px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:12px}
+  .card h3{margin:0 0 12px;font-family:var(--display);font-size:1.05rem;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
+  .who{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  .who .quien{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+  .who b{font-family:var(--display);font-size:1.35rem;font-weight:700;letter-spacing:-.01em;line-height:1.1}
+  #refrescar{font-size:1rem;padding:5px 12px}
+  .tag{font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--pri-soft);color:var(--pri)}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px;margin-bottom:12px}
+  .kpis div{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px 10px}
+  .kpis b{display:block;font-family:var(--display);font-size:1.9rem;font-weight:800;line-height:1;color:var(--ink);letter-spacing:-.03em}
+  .kpis span{display:block;margin-top:6px;font-size:.76rem;color:var(--muted);line-height:1.25}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .field{margin-bottom:10px}
+  .field label{display:block;font-size:.82rem;font-weight:600;color:var(--muted);margin-bottom:5px}
+  .chk{display:flex;gap:10px;align-items:flex-start;font-size:.84rem;color:var(--muted);margin:10px 0}
+  .chk input{width:20px;height:20px;margin:1px 0 0;accent-color:var(--pri);flex:none}
+  .note{font-size:.88rem;padding:10px 12px;border-radius:12px;margin:10px 0;background:var(--bg)}
+  .note.ok{background:var(--pri-soft);color:var(--pri);font-weight:600}
+  .note.err{background:var(--err-soft);color:var(--err);font-weight:600}
+  .pinbox{background:var(--surface);border:2px solid var(--gold);border-radius:20px;padding:16px;text-align:center;margin-bottom:12px}
+  .pinbox b{display:block;font-family:var(--display);font-size:2.4rem;font-weight:800;letter-spacing:.18em;color:var(--ink);margin:6px 0}
+  table{width:100%;border-collapse:collapse;font-size:.86rem}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:.78rem;padding:6px 4px;border-bottom:1px solid var(--line)}
+  td{padding:9px 4px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tr:last-child td{border-bottom:0}
+  td.n,th.n{text-align:right;white-space:nowrap}
   .off{opacity:.45}
-  .row{display:grid;grid-template-columns:1fr 70px 92px;gap:8px;align-items:center;font-size:.8rem;padding:3px 0}
+  .row{display:grid;grid-template-columns:1fr 64px 86px;gap:10px;align-items:center;font-size:.86rem;padding:5px 0}
   .row .lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .row .barra{height:6px;background:#0f1720;border-radius:3px;overflow:hidden}
-  .row .barra span{display:block;height:100%;background:var(--acc)}
-  .row .num{text-align:right;white-space:nowrap}
-  .row .num small{color:var(--mut)}
-  .empty{color:var(--mut);font-size:.82rem}
+  .row .barra{height:8px;background:var(--bg);border-radius:4px;overflow:hidden}
+  .row .barra span{display:block;height:100%;background:var(--pri);border-radius:4px}
+  .row .num{text-align:right;white-space:nowrap;font-weight:700}
+  .row .num small{color:var(--muted);font-weight:500}
+  .empty{color:var(--muted);font-size:.9rem}
+  .card .empty{margin-top:0}
+  #l_txt{min-height:120px;resize:vertical}
+  .cuenta{font-family:var(--body);font-size:.8rem;font-weight:600;color:var(--muted);margin-left:4px}
+  .buscar{margin-bottom:8px}
+  .lista{list-style:none;margin:0;padding:0}
+  .persona{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .persona:last-child{border-bottom:0}
+  .p-info{min-width:0}
+  .p-info b{display:block;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .p-info span{font-size:.8rem;color:var(--muted)}
+  .p-num{text-align:right}
+  .p-num b{display:block;font-family:var(--display);font-size:1.35rem;font-weight:800;line-height:1}
+  .p-num span{font-size:.72rem;color:var(--muted)}
+  .acc{grid-column:1 / -1;display:flex;gap:6px;margin-top:6px}
 </style>
 </head>
 <body>
 <main class="app">
   <header>
     <div class="t">
-      <h1>🗳️ Consulta de Puesto de Votación</h1>
-      <p>Soacha 2027 · Datos de ejemplo (ficticios)</p>
+      <h1>¿Dónde voto?</h1>
+      <p>Consulte su puesto y mesa para las elecciones de 2027 en Soacha.</p>
+      <span class="prueba">Datos de prueba</span>
     </div>
-    <button class="btn" id="toggle">👥 Equipo</button>
+    <button class="btn" id="toggle">Equipo</button>
   </header>
 
   <!-- Vista pública: chat -->
   <section class="view" id="chat">
     <div id="msgs" aria-live="polite"></div>
     <div class="quick">
-      <button class="btn" data-modo="cedula">🔎 Consultar mi puesto</button>
-      <button class="btn" data-modo="privacidad">🔒 Privacidad</button>
+      <button class="btn" data-modo="cedula">Otra cédula</button>
+      <button class="btn" data-modo="privacidad">Cómo usamos sus datos</button>
     </div>
     <form class="bar" id="f" autocomplete="off">
-      <input id="in" inputmode="numeric" placeholder="Escriba su número de cédula" aria-label="Cédula">
-      <button class="btn pri" id="send">Enviar</button>
+      <input id="in" inputmode="numeric" placeholder="Número de cédula" aria-label="Número de cédula">
+      <button class="btn pri" id="send">Buscar</button>
     </form>
-    <footer>Esta página no contiene la base de datos: cada consulta se resuelve en el servidor.</footer>
+    <footer>Solo mostramos el puesto de la cédula que usted escribe.</footer>
   </section>
 
   <!-- Vista equipo -->
@@ -127,7 +202,7 @@
     if (b.dataset.modo === "privacidad") {
       add("Solo consultamos la cédula que usted escribe y devolvemos su puesto y mesa. No mostramos listados. " +
           "Tratamiento de datos conforme a la Ley 1581 de 2012.");
-    } else add("Escriba su número de cédula (solo números).");
+    } else add("Escriba el número de cédula, sin puntos ni espacios.");
     input.focus();
   });
   $("#f").onsubmit = async (e) => {
@@ -135,21 +210,31 @@
     const ced = input.value.replace(/\D/g, "");
     if (!input.value.trim()) return;
     add(input.value.trim(), "user"); input.value = "";
-    if (ced.length < 5 || ced.length > 10) return add("Eso no parece una cédula. Escriba solo los números (5 a 10 dígitos).");
+    if (ced.length < 5 || ced.length > 10) return add("Ese número no parece una cédula. Escriba entre 5 y 10 dígitos, sin puntos.");
     send.disabled = true;
     try {
       const d = await api(`/api/puesto?cedula=${ced}`);
       if (!d.ok) add("⚠️ " + d.error);
-      else if (!d.encontrado) add("No encontramos esa cédula en nuestra base. Verifique el número o consulte en la Registraduría.");
+      else if (!d.encontrado) add("Esa cédula no está en nuestra base. Revise el número o consulte su puesto en la página de la Registraduría.");
       else {
-        const mapa = d.lat && d.lng ? `<br><a href="https://www.google.com/maps?q=${d.lat},${d.lng}" target="_blank" rel="noopener">📍 Ver en el mapa</a>` : "";
-        add(`✅ Cédula ${esc(d.cedula)}<br><b>${esc(d.puesto)}</b><br>Mesa ${esc(d.mesa)}<br>${esc(d.direccion)}<br>${esc(d.municipio)}${mapa}`, "bot", true);
+        const mapa = d.lat && d.lng ? `https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lng}` : "";
+        add(`<div class="pase" role="group" aria-label="Su puesto de votación">
+          <div class="pase-cab"><span>Su puesto de votación</span><span>Cédula ${esc(d.cedula)}</span></div>
+          <div class="pase-cuerpo">
+            <div><h3>${esc(d.puesto)}</h3><p class="dir">${esc(d.direccion)}<br>${esc(d.municipio)}</p></div>
+            <div class="pase-mesa"><small>Mesa</small><b>${esc(d.mesa)}</b></div>
+          </div>
+          <div class="pase-pie">
+            ${mapa ? `<a class="ir" href="${mapa}" target="_blank" rel="noopener">Cómo llegar</a>` : ""}
+            <a class="otra" data-otra>Otra cédula</a>
+          </div></div>`, "bot rich", true);
+        const otra = [...msgs.querySelectorAll("[data-otra]")].pop();
+        if (otra) otra.onclick = () => input.focus();
       }
     } catch { add("⚠️ No pudimos conectar con el servidor. Intente de nuevo."); }
     finally { send.disabled = false; input.focus(); }
   };
-  add("Hola 👋 Soy el asistente de la campaña. Le ayudo a encontrar su puesto de votación.");
-  add("Escriba su número de cédula (solo números).");
+  add("Hola. Escriba su número de cédula, sin puntos ni espacios, y le mostramos dónde le toca votar.");
 
   // ───────── navegación ─────────
   let vista = "chat";
@@ -158,7 +243,8 @@
   function render() {
     $("#chat").classList.toggle("hidden", vista !== "chat");
     $("#equipo").classList.toggle("hidden", vista !== "equipo");
-    $("#toggle").textContent = vista === "chat" ? "👥 Equipo" : "💬 Consulta";
+    $("#toggle").textContent = vista === "chat" ? "Equipo" : "Consulta";
+    document.querySelector(".app").classList.toggle("modo-equipo", vista === "equipo");
     if (vista === "equipo") sesion ? cargarPanel() : pintarLogin();
   }
 
@@ -167,7 +253,7 @@
     $("#equipo").innerHTML = `
       <div class="card">
         <h3>Ingreso del equipo</h3>
-        <p class="empty">Ingrese su código de usuario (por ejemplo G-014) y su PIN.</p>
+        <p class="empty">Escriba el código y el PIN que le entregó su coordinador.</p>
         <form id="flogin" autocomplete="off">
           <div class="field"><label>Código de usuario</label><input id="lusr" maxlength="12" placeholder="G-014 · K-003 · CANDIDATO" autocapitalize="characters"></div>
           <div class="field"><label>PIN</label><input id="pin" type="password" inputmode="numeric" maxlength="10" placeholder="••••••"></div>
@@ -199,8 +285,9 @@
     const d = await api("/api/panel");
     if (!d.ok) return sesion ? ($("#equipo").innerHTML = `<div class="note err">${esc(d.error)}</div>`) : pintarLogin(d.error);
     const u = d.usuario;
-    let html = `<div class="who"><b>${esc(u.nombre)}</b><span class="tag">${ROL[u.rol]}${u.id !== "CANDIDATO" ? " · " + esc(u.id) : ""}</span>
-      <button class="btn sm" id="refrescar" title="Traer los datos más recientes">↻ Actualizar</button>
+    let html = `<div class="who"><div class="quien"><b>${esc(u.nombre)}</b>
+        ${u.rol !== "candidato" ? `<span class="tag">${ROL[u.rol]} ${esc(u.id)}</span>` : ""}</div>
+      <button class="btn sm" id="refrescar" aria-label="Actualizar datos" title="Actualizar datos">↻</button>
       <button class="btn sm" id="salir">Salir</button></div>`;
     html += flashHtml() + loteHtml();
     if (u.rol === "gestor") html += panelGestor(d);
@@ -345,28 +432,27 @@
         <button class="btn pri" style="width:100%;padding:10px">Crear y generar PIN</button>
       </form>`;
 
-    const acciones = (x) => `<button class="btn sm" data-pin="${esc(x.id)}" data-nom="${esc(x.nombre)}">Nuevo PIN</button>
-      <button class="btn sm" data-estado="${esc(x.id)}" data-activo="${x.activo ? 0 : 1}">${x.activo ? "Desactivar" : "Activar"}</button>`;
+    const acciones = (x) => `<div class="acc"><button class="btn sm" data-pin="${esc(x.id)}" data-nom="${esc(x.nombre)}">Nuevo PIN</button>
+      <button class="btn sm" data-estado="${esc(x.id)}" data-activo="${x.activo ? 0 : 1}">${x.activo ? "Desactivar" : "Activar"}</button></div>`;
+    const persona = (x, detalle) => `<li class="persona ${x.activo ? "" : "off"}" data-buscar="${esc((x.nombre + " " + x.id + " " + detalle).toLowerCase())}">
+      <div class="p-info"><b>${esc(x.nombre)}</b><span>${esc(x.id)}${detalle ? " · " + esc(detalle) : ""}${x.activo ? "" : " · desactivado"}</span></div>
+      <div class="p-num"><b>${x.votantes}</b><span>votantes</span></div>${acciones(x)}</li>`;
 
-    const tCoord = u.rol === "candidato" ? `<div class="card"><h3>Coordinadores</h3>${coords.length ? `<table>
-        <tr><th>Coordinador</th><th class="n">Gestores</th><th class="n">Votantes</th><th></th></tr>
-        ${coords.map((c) => `<tr class="${c.activo ? "" : "off"}"><td>${esc(c.nombre)}<br><small class="empty">${esc(c.id)}</small></td>
-          <td class="n">${c.gestores}</td><td class="n">${c.votantes}</td><td class="n">${acciones(c)}</td></tr>`).join("")}
-      </table>` : `<p class="empty">Cree el primer coordinador.</p>`}</div>` : "";
+    const tCoord = u.rol === "candidato" ? `<div class="card"><h3>Coordinadores</h3>${coords.length
+      ? `<ul class="lista">${coords.map((c) => persona(c, `${c.gestores} gestor${c.gestores === 1 ? "" : "es"}`)).join("")}</ul>`
+      : `<p class="empty">Cree el primer coordinador para empezar a armar el equipo.</p>`}</div>` : "";
 
     const gest = d.por_gestor;
-    const tGest = `<div class="card"><h3>${u.rol === "candidato" ? "Gestores" : "Mis gestores"}</h3>${gest.length ? `<table>
-        <tr><th>Gestor</th>${u.rol === "candidato" ? "<th>Coordinador</th>" : ""}<th class="n">Votantes</th><th></th></tr>
-        ${gest.map((g) => `<tr class="${g.activo ? "" : "off"}"><td>${esc(g.nombre)}<br><small class="empty">${esc(g.id)}</small></td>
-          ${u.rol === "candidato" ? `<td>${esc(nombreCoord[g.coordinador_id] || g.coordinador_id || "—")}</td>` : ""}
-          <td class="n">${g.votantes}</td><td class="n">${acciones(g)}</td></tr>`).join("")}
-      </table>` : `<p class="empty">Aún no hay gestores.</p>`}</div>`;
+    const tGest = `<div class="card"><h3>${u.rol === "candidato" ? "Gestores" : "Mis gestores"} <small class="cuenta">${gest.length}</small></h3>${gest.length
+      ? `${gest.length > 8 ? `<input class="buscar" id="g_buscar" placeholder="Buscar por nombre o código" aria-label="Buscar gestor">` : ""}
+         <ul class="lista" id="g_lista">${gest.map((g) => persona(g, u.rol === "candidato" ? (nombreCoord[g.coordinador_id] || "") : "")).join("")}</ul>`
+      : `<p class="empty">Aún no hay gestores. Agréguelos uno a uno o con la carga masiva.</p>`}</div>`;
 
     const masiva = `<form id="flote" class="card" autocomplete="off"><h3>Carga masiva</h3>
       <p class="empty">${u.rol === "candidato"
         ? "Una persona por línea: <b>Nombre ; rol ; coordinador</b>. El rol es coordinador o gestor; el coordinador puede ser su código (K-001) o su nombre exacto, incluso si se crea en esta misma lista. Puede pegar tres columnas copiadas de Excel."
         : "Un gestor por línea, solo el nombre. Quedan a su cargo."} Máximo 100 por carga.</p>
-      <textarea id="l_txt" rows="5" style="width:100%;background:#0f1720;border:1px solid #ffffff22;color:var(--txt);border-radius:10px;padding:10px;font:inherit;font-size:.85rem"
+      <textarea id="l_txt" rows="5"
         placeholder="${u.rol === "candidato" ? "Ana Torres; coordinador\nLuis Gómez; gestor; Ana Torres\nMarta Ruiz; gestor; K-001" : "Luis Gómez\nMarta Ruiz"}"></textarea>
       <div id="l_msg"></div>
       <button class="btn pri" style="width:100%;padding:10px;margin-top:6px">Crear todos y generar PIN</button>
@@ -389,6 +475,10 @@
       if (!r.ok) return ($("#u_msg").innerHTML = `<div class="note err">${esc(r.error)}</div>`);
       flash = { pin: r.pin, nombre: r.usuario.nombre, id: r.usuario.id };
       cargarPanel();
+    };
+    if ($("#g_buscar")) $("#g_buscar").oninput = (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      document.querySelectorAll("#g_lista .persona").forEach((li) => li.classList.toggle("hidden", q && !li.dataset.buscar.includes(q)));
     };
     if ($("#lote_csv")) $("#lote_csv").onclick = descargarLote;
     if ($("#lote_cerrar")) $("#lote_cerrar").onclick = () => { ultimoLote = null; cargarPanel(); };
