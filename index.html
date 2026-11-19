@@ -48,6 +48,7 @@
   .btn{font:inherit;font-size:.86rem;font-weight:600;background:var(--surface);border:1px solid var(--line);color:var(--ink);
        padding:8px 14px;border-radius:999px;cursor:pointer;transition:background .15s,border-color .15s}
   .btn:hover{border-color:#C5CED8}
+  a.btn{text-decoration:none}
   .btn.pri{background:var(--pri);border-color:var(--pri);color:#fff;border-radius:14px}
   .btn.pri:hover{background:#0B5A49}
   .btn.sm{padding:5px 11px;font-size:.78rem}
@@ -151,6 +152,8 @@
   .p-num b{display:block;font-family:var(--display);font-size:1.35rem;font-weight:800;line-height:1}
   .p-num span{font-size:.72rem;color:var(--muted)}
   .acc{grid-column:1 / -1;display:flex;gap:6px;margin-top:6px}
+  .pend{display:inline-block;font-size:.75rem;font-weight:700;color:#8A5A00;background:#FBF1DC;padding:4px 10px;border-radius:999px}
+  .card.destacada{border:2px solid var(--gold)}
 </style>
 </head>
 <body>
@@ -305,7 +308,7 @@
     if (u.rol === "gestor") html += panelGestor(d);
     else html += panelEquipo(d, u);
     $("#equipo").innerHTML = html;
-    $("#salir").onclick = () => { guardarSesion(null); ultimoLote = null; pintarLogin(); };
+    $("#salir").onclick = () => { guardarSesion(null); ultimoLote = null; completar = null; pintarLogin(); };
     $("#refrescar").onclick = () => cargarPanel();
     if (u.rol === "gestor") enlazarGestor();
     else enlazarEquipo(d, u);
@@ -355,11 +358,34 @@
   }
 
   // Gestor
+  const REGISTRADURIA = "https://www.registraduria.gov.co/";
+  let completar = null; // votante pendiente que se está completando { ref, nombre, cedula }
+
   function panelGestor(d) {
-    const filas = d.mis_votantes.map((v) => `<tr><td>${esc(v.cedula)}</td><td>${esc(v.nombre || "—")}</td>
-      <td>${esc(v.puesto)}</td><td class="n">${esc(v.mesa)}</td></tr>`).join("");
+    const fila = (v) => `<li class="persona">
+      <div class="p-info"><b>${esc(v.nombre || "Sin nombre")}</b>
+        <span>${esc(v.cedula)}${v.pendiente ? "" : " · " + esc(v.puesto)}</span></div>
+      ${v.pendiente
+        ? `<div class="p-num"><span class="pend">Sin puesto</span></div>
+           <div class="acc"><button class="btn sm" data-completar="${esc(v.ref)}" data-nom="${esc(v.nombre || v.cedula)}" data-ced="${esc(v.cedula)}">Completar puesto</button></div>`
+        : `<div class="p-num"><b>${esc(v.mesa)}</b><span>mesa</span></div>`}
+    </li>`;
+    const comp = completar ? `<form class="card destacada" id="fcomp" autocomplete="off">
+        <h3>Puesto de ${esc(completar.nombre)}</h3>
+        <p class="empty">Cédula ${esc(completar.cedula)}. Consulte el puesto con el votante y escríbalo aquí.</p>
+        <a class="btn" href="${REGISTRADURIA}" target="_blank" rel="noopener" style="display:block;text-align:center;margin-bottom:10px">Abrir la Registraduría</a>
+        <div class="field"><label>Puesto de votación</label><input id="c_pue" maxlength="120"></div>
+        <div class="grid2">
+          <div class="field"><label>Mesa</label><input id="c_mesa" inputmode="numeric" maxlength="3"></div>
+          <div class="field"><label>Municipio</label><input id="c_mun" value="SOACHA" maxlength="60"></div>
+        </div>
+        <div id="c_msg"></div>
+        <div class="grid2"><button type="button" class="btn" id="c_cancel">Cancelar</button><button class="btn pri">Guardar puesto</button></div>
+      </form>` : "";
     return `
-      <div class="kpis"><div><b>${d.total}</b><span>mis votantes</span></div></div>
+      <div class="kpis"><div><b>${d.total}</b><span>mis votantes</span></div>
+        <div><b>${d.pendientes}</b><span>sin puesto</span></div></div>
+      ${comp}
       <div class="card">
         <h3>Registrar votante</h3>
         <form id="freg" autocomplete="off">
@@ -369,42 +395,49 @@
             <div class="field"><label>Nombre</label><input id="r_nom" maxlength="80"></div>
             <div class="field"><label>Teléfono</label><input id="r_tel" inputmode="tel" maxlength="20"></div>
           </div>
-          <div id="r_manual">
-            <div class="field"><label>Puesto de votación</label><input id="r_pue" maxlength="120" placeholder="Consúltelo en la Registraduría"></div>
-            <div class="grid2">
-              <div class="field"><label>Mesa</label><input id="r_mesa" inputmode="numeric" maxlength="3"></div>
-              <div class="field"><label>Municipio</label><input id="r_mun" value="SOACHA" maxlength="60"></div>
+          <div id="r_manual" class="hidden">
+            <div class="note">Esta cédula no está en la base. Consulte el puesto con el votante en la Registraduría, opción "Consulta lugar de votación".
+              <a class="btn sm" href="${REGISTRADURIA}" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px">Abrir la Registraduría</a></div>
+            <label class="chk"><input type="checkbox" id="r_pend"><span>Todavía no sé el puesto: guardarlo como pendiente y completarlo después.</span></label>
+            <div id="r_lugar">
+              <div class="field"><label>Puesto de votación</label><input id="r_pue" maxlength="120"></div>
+              <div class="grid2">
+                <div class="field"><label>Mesa</label><input id="r_mesa" inputmode="numeric" maxlength="3"></div>
+                <div class="field"><label>Municipio</label><input id="r_mun" value="SOACHA" maxlength="60"></div>
+              </div>
             </div>
           </div>
           <label class="chk"><input type="checkbox" id="r_aut">
             <span>El votante autorizó el tratamiento de sus datos personales para fines de la campaña (Ley 1581 de 2012).</span></label>
           <div id="r_msg"></div>
-          <button class="btn pri" style="width:100%;padding:10px">Registrar</button>
+          <button class="btn pri" style="width:100%;padding:12px">Registrar</button>
         </form>
       </div>
-      <div class="card"><h3>Mis votantes</h3>
-        ${filas ? `<table><tr><th>Cédula</th><th>Nombre</th><th>Puesto</th><th class="n">Mesa</th></tr>${filas}</table>`
-                : `<p class="empty">Aún no ha registrado votantes.</p>`}
+      <div class="card"><h3>Mis votantes <small class="cuenta">${d.total}</small></h3>
+        ${d.mis_votantes.length ? `<ul class="lista">${d.mis_votantes.map(fila).join("")}</ul>`
+          : `<p class="empty">Aún no ha registrado votantes. Empiece con el formulario de arriba.</p>`}
       </div>`;
   }
 
   function enlazarGestor() {
-    let enBase = false;
-    $("#r_ced").onblur = async () => {
+    const revisar = async () => {
       const c = $("#r_ced").value.replace(/\D/g, "");
       const box = $("#r_base");
-      if (c.length < 5) { box.classList.add("hidden"); $("#r_manual").classList.remove("hidden"); enBase = false; return; }
+      if (c.length < 5) { box.classList.add("hidden"); $("#r_manual").classList.add("hidden"); return; }
       const d = await api(`/api/puesto?cedula=${c}`);
-      enBase = !!d.encontrado;
-      box.classList.toggle("hidden", !enBase);
-      $("#r_manual").classList.toggle("hidden", enBase);
-      if (enBase) { box.className = "note ok"; box.textContent = `En la base: ${d.puesto} · mesa ${d.mesa} · ${d.municipio}`; }
+      box.classList.toggle("hidden", !d.encontrado);
+      $("#r_manual").classList.toggle("hidden", !!d.encontrado);
+      if (d.encontrado) { box.className = "note ok"; box.textContent = `En la base: ${d.puesto}, mesa ${d.mesa}, ${d.municipio}`; }
     };
+    $("#r_ced").onblur = revisar;
+    $("#r_ced").oninput = () => { if ($("#r_ced").value.replace(/\D/g, "").length >= 7) clearTimeout(window._rc), window._rc = setTimeout(revisar, 500); };
+    $("#r_pend").onchange = () => $("#r_lugar").classList.toggle("hidden", $("#r_pend").checked);
     $("#freg").onsubmit = async (e) => {
       e.preventDefault();
       const body = {
         cedula: $("#r_ced").value, nombre: $("#r_nom").value, telefono: $("#r_tel").value,
         puesto: $("#r_pue").value, mesa: $("#r_mesa").value, municipio: $("#r_mun").value,
+        pendiente: !$("#r_manual").classList.contains("hidden") && $("#r_pend").checked,
         autorizacion: $("#r_aut").checked,
       };
       if (!body.autorizacion) return ($("#r_msg").innerHTML = `<div class="note err">Marque la autorización del votante.</div>`);
@@ -413,6 +446,21 @@
       flash = { texto: d.mensaje };
       cargarPanel();
     };
+    document.querySelectorAll("[data-completar]").forEach((b) => b.onclick = () => {
+      completar = { ref: b.dataset.completar, nombre: b.dataset.nom, cedula: b.dataset.ced };
+      cargarPanel();
+    });
+    if ($("#fcomp")) {
+      $("#fcomp").scrollIntoView({ block: "start" }); $("#c_pue").focus();
+      $("#c_cancel").onclick = () => { completar = null; cargarPanel(); };
+      $("#fcomp").onsubmit = async (e) => {
+        e.preventDefault();
+        const d = await api("/api/votantes/puesto", { method: "POST",
+          body: { ref: completar.ref, puesto: $("#c_pue").value, mesa: $("#c_mesa").value, municipio: $("#c_mun").value } });
+        if (!d.ok) return ($("#c_msg").innerHTML = `<div class="note err">${esc(d.error)}</div>`);
+        completar = null; flash = { texto: d.mensaje }; cargarPanel();
+      };
+    }
   }
 
   // Coordinador y candidato
@@ -420,7 +468,8 @@
     const t = d.totales;
     let kpis = `<div><b>${t.votantes}</b><span>votantes del equipo</span></div>
                 <div><b>${t.gestores}</b><span>gestores activos</span></div>
-                <div><b>${t.puestos}</b><span>puestos cubiertos</span></div>`;
+                <div><b>${t.puestos}</b><span>puestos cubiertos</span></div>
+                <div><b>${t.pendientes || 0}</b><span>sin puesto todavía</span></div>`;
     if (u.rol === "candidato") kpis = `<div><b>${d.por_coordinador.length}</b><span>coordinadores</span></div>` + kpis +
       `<div><b>${d.base.total}</b><span>en la base</span></div>`;
 
