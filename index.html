@@ -154,6 +154,11 @@
   .acc{grid-column:1 / -1;display:flex;gap:6px;margin-top:6px}
   .pend{display:inline-block;font-size:.75rem;font-weight:700;color:#8A5A00;background:#FBF1DC;padding:4px 10px;border-radius:999px}
   .card.destacada{border:2px solid var(--gold)}
+  .guia{background:#FBF6EA;border:1px solid #EBDDB8;border-radius:16px;padding:14px;margin:6px 0 10px}
+  .guia b{display:block;margin-bottom:6px}
+  .guia ol{margin:0 0 12px;padding-left:20px;font-size:.9rem;color:var(--ink)}
+  .guia li{margin-bottom:4px}
+  .resaltar{outline:2px solid var(--gold);outline-offset:6px;border-radius:12px}
 </style>
 </head>
 <body>
@@ -255,7 +260,9 @@
   let vista = "chat";
   $("#toggle").onclick = () => { vista = vista === "chat" ? "equipo" : "chat"; render(); };
 
+  try { if (sesion && sessionStorage.getItem("vista") === "equipo") vista = "equipo"; } catch {}
   function render() {
+    try { sessionStorage.setItem("vista", vista); } catch {}
     $("#chat").classList.toggle("hidden", vista !== "chat");
     $("#equipo").classList.toggle("hidden", vista !== "equipo");
     $("#toggle").textContent = vista === "chat" ? "Equipo" : "Consulta";
@@ -358,7 +365,7 @@
   }
 
   // Gestor
-  const REGISTRADURIA = "https://www.registraduria.gov.co/";
+  const REGISTRADURIA = "https://wsp.registraduria.gov.co/censo/consultar/";
   let completar = null; // votante pendiente que se está completando { ref, nombre, cedula }
 
   function panelGestor(d) {
@@ -373,7 +380,7 @@
     const comp = completar ? `<form class="card destacada" id="fcomp" autocomplete="off">
         <h3>Puesto de ${esc(completar.nombre)}</h3>
         <p class="empty">Cédula ${esc(completar.cedula)}. Consulte el puesto con el votante y escríbalo aquí.</p>
-        <a class="btn" href="${REGISTRADURIA}" target="_blank" rel="noopener" style="display:block;text-align:center;margin-bottom:10px">Abrir la Registraduría</a>
+        <a class="btn" href="${REGISTRADURIA}" target="_blank" rel="noopener" style="display:block;text-align:center;margin-bottom:10px">Consultar en la Registraduría</a>
         <div class="field"><label>Puesto de votación</label><input id="c_pue" maxlength="120"></div>
         <div class="grid2">
           <div class="field"><label>Mesa</label><input id="c_mesa" inputmode="numeric" maxlength="3"></div>
@@ -389,18 +396,26 @@
       <div class="card">
         <h3>Registrar votante</h3>
         <form id="freg" autocomplete="off">
-          <div class="field"><label>Cédula</label><input id="r_ced" inputmode="numeric" maxlength="12"></div>
+          <div class="field"><label>Cédula</label><input id="r_ced" inputmode="numeric" maxlength="12" placeholder="Sin puntos ni espacios"></div>
           <div id="r_base" class="note hidden"></div>
           <div class="grid2">
             <div class="field"><label>Nombre</label><input id="r_nom" maxlength="80"></div>
             <div class="field"><label>Teléfono</label><input id="r_tel" inputmode="tel" maxlength="20"></div>
           </div>
           <div id="r_manual" class="hidden">
-            <div class="note">Esta cédula no está en la base. Consulte el puesto con el votante en la Registraduría, opción "Consulta lugar de votación".
-              <a class="btn sm" href="${REGISTRADURIA}" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px">Abrir la Registraduría</a></div>
+            <div class="guia">
+              <b>Esta cédula no está en la base</b>
+              <ol>
+                <li>Toque el botón: se copia la cédula y se abre la consulta de la Registraduría.</li>
+                <li>Allá pegue la cédula, marque "No soy un robot" y pulse Consultar.</li>
+                <li>Vuelva a esta pestaña y escriba el puesto y la mesa que le salieron.</li>
+              </ol>
+              <button type="button" class="btn pri" id="r_ir" style="width:100%;padding:12px">Copiar cédula y consultar en la Registraduría</button>
+              <div id="r_copiado" class="note ok hidden"></div>
+            </div>
             <label class="chk"><input type="checkbox" id="r_pend"><span>Todavía no sé el puesto: guardarlo como pendiente y completarlo después.</span></label>
             <div id="r_lugar">
-              <div class="field"><label>Puesto de votación</label><input id="r_pue" maxlength="120"></div>
+              <div class="field"><label>Puesto de votación (como sale en la Registraduría)</label><input id="r_pue" maxlength="120"></div>
               <div class="grid2">
                 <div class="field"><label>Mesa</label><input id="r_mesa" inputmode="numeric" maxlength="3"></div>
                 <div class="field"><label>Municipio</label><input id="r_mun" value="SOACHA" maxlength="60"></div>
@@ -432,6 +447,38 @@
     $("#r_ced").onblur = revisar;
     $("#r_ced").oninput = () => { if ($("#r_ced").value.replace(/\D/g, "").length >= 7) clearTimeout(window._rc), window._rc = setTimeout(revisar, 500); };
     $("#r_pend").onchange = () => $("#r_lugar").classList.toggle("hidden", $("#r_pend").checked);
+
+    // Borrador: si el navegador recarga la página al volver de la Registraduría, no se pierde lo escrito
+    const campos = ["r_ced", "r_nom", "r_tel", "r_pue", "r_mesa", "r_mun"];
+    const guardar = () => { try { sessionStorage.setItem("borrador", JSON.stringify(Object.fromEntries(campos.map((c) => [c, $("#" + c).value])))); } catch {} };
+    try {
+      const b = JSON.parse(sessionStorage.getItem("borrador") || "null");
+      if (b) { campos.forEach((c) => { if (b[c]) $("#" + c).value = b[c]; }); if (b.r_ced) revisar(); }
+    } catch {}
+    campos.forEach((c) => $("#" + c).addEventListener("input", guardar));
+
+    $("#r_ir").onclick = async () => {
+      const ced = $("#r_ced").value.replace(/\D/g, "");
+      guardar();
+      let copiado = false;
+      try { await navigator.clipboard.writeText(ced); copiado = true; } catch {}
+      const aviso = $("#r_copiado");
+      aviso.classList.remove("hidden");
+      aviso.textContent = copiado
+        ? `Cédula ${ced} copiada. Péguela en la Registraduría y luego vuelva aquí.`
+        : `Escriba la cédula ${ced} en la Registraduría y luego vuelva aquí.`;
+      window.open(REGISTRADURIA, "_blank", "noopener");
+      esperandoRegreso = true;
+    };
+    let esperandoRegreso = false;
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && esperandoRegreso && $("#r_pue")) {
+        esperandoRegreso = false;
+        $("#r_pend").checked = false; $("#r_lugar").classList.remove("hidden");
+        $("#r_lugar").classList.add("resaltar");
+        $("#r_pue").scrollIntoView({ block: "center" }); $("#r_pue").focus();
+      }
+    });
     $("#freg").onsubmit = async (e) => {
       e.preventDefault();
       const body = {
@@ -443,6 +490,7 @@
       if (!body.autorizacion) return ($("#r_msg").innerHTML = `<div class="note err">Marque la autorización del votante.</div>`);
       const d = await api("/api/votantes", { method: "POST", body });
       if (!d.ok) return ($("#r_msg").innerHTML = `<div class="note err">${esc(d.error)}</div>`);
+      try { sessionStorage.removeItem("borrador"); } catch {}
       flash = { texto: d.mensaje };
       cargarPanel();
     };
