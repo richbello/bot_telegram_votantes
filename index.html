@@ -159,6 +159,8 @@
   .guia ol{margin:0 0 12px;padding-left:20px;font-size:.9rem;color:var(--ink)}
   .guia li{margin-bottom:4px}
   .resaltar{outline:2px solid var(--gold);outline-offset:6px;border-radius:12px}
+  .pegar{margin:4px 0 12px}
+  .pegar textarea{margin-top:8px;font-size:.88rem;min-height:64px}
 </style>
 </head>
 <body>
@@ -383,11 +385,17 @@
         <h3>Puesto de ${esc(completar.nombre)}</h3>
         <p class="empty">Cédula ${esc(completar.cedula)}. Consulte el puesto con el votante y escríbalo aquí.</p>
         <a class="btn" href="${REGISTRADURIA}" target="_blank" rel="noopener" style="display:block;text-align:center;margin-bottom:10px">Consultar en la Registraduría</a>
+        <div class="pegar">
+                <button type="button" class="btn pri" id="c_pegar" style="width:100%;padding:12px">Pegar resultado de la Registraduría</button>
+                <textarea id="c_txt" rows="3" placeholder="Si el botón no pega, mantenga presionado aquí y elija Pegar"></textarea>
+                <div id="c_leido"></div>
+              </div>
         <div class="field"><label>Puesto de votación</label><input id="c_pue" maxlength="120"></div>
         <div class="grid2">
           <div class="field"><label>Mesa</label><input id="c_mesa" inputmode="numeric" maxlength="3"></div>
           <div class="field"><label>Municipio</label><input id="c_mun" value="SOACHA" maxlength="60"></div>
         </div>
+        <div class="field"><label>Dirección del puesto (opcional)</label><input id="c_dir" maxlength="120"></div>
         <div id="c_msg"></div>
         <div class="grid2"><button type="button" class="btn" id="c_cancel">Cancelar</button><button class="btn pri">Guardar puesto</button></div>
       </form>` : "";
@@ -410,7 +418,7 @@
               <ol>
                 <li>Toque el botón: se copia la cédula y se abre la consulta de la Registraduría.</li>
                 <li>Allá pegue la cédula, deje "Lugar de votación actual" y pulse Consultar.</li>
-                <li>Vuelva a esta pestaña y escriba el puesto y la mesa que le salieron.</li>
+                <li>En el resultado, seleccione todo el texto y cópielo. Vuelva aquí y toque "Pegar resultado".</li>
               </ol>
               <button type="button" class="btn pri" id="r_ir" style="width:100%;padding:12px">Copiar cédula y consultar en la Registraduría</button>
               <div id="r_copiado" class="note ok hidden"></div>
@@ -418,11 +426,17 @@
             </div>
             <label class="chk"><input type="checkbox" id="r_pend"><span>Todavía no sé el puesto: guardarlo como pendiente y completarlo después.</span></label>
             <div id="r_lugar">
-              <div class="field"><label>Puesto de votación (como sale en la Registraduría)</label><input id="r_pue" maxlength="120"></div>
+              <div class="pegar">
+                <button type="button" class="btn pri" id="r_pegar" style="width:100%;padding:12px">Pegar resultado de la Registraduría</button>
+                <textarea id="r_txt" rows="3" placeholder="Si el botón no pega, mantenga presionado aquí y elija Pegar"></textarea>
+                <div id="r_leido"></div>
+              </div>
+              <div class="field"><label>Puesto de votación</label><input id="r_pue" maxlength="120"></div>
               <div class="grid2">
                 <div class="field"><label>Mesa</label><input id="r_mesa" inputmode="numeric" maxlength="3"></div>
                 <div class="field"><label>Municipio</label><input id="r_mun" value="SOACHA" maxlength="60"></div>
               </div>
+              <div class="field"><label>Dirección del puesto (opcional)</label><input id="r_dir" maxlength="120"></div>
             </div>
           </div>
           <label class="chk"><input type="checkbox" id="r_aut">
@@ -435,6 +449,80 @@
         ${d.mis_votantes.length ? `<ul class="lista">${d.mis_votantes.map(fila).join("")}</ul>`
           : `<p class="empty">Aún no ha registrado votantes. Empiece con el formulario de arriba.</p>`}
       </div>`;
+  }
+
+// Lee el texto copiado del resultado de la Registraduría y extrae puesto, mesa, municipio, dirección.
+// Acepta "Etiqueta: valor", "Etiqueta valor", etiqueta y valor en líneas seguidas, o tabla copiada (tabulaciones).
+function leerRegistraduria(texto) {
+  const ETQ = {
+    departamento: /^departamento$/,
+    municipio: /^(municipio|ciudad)$/,
+    puesto: /^(puesto|puesto de votaci[oó]n|lugar de votaci[oó]n|nombre del puesto)$/,
+    direccion: /^(direcci[oó]n|direcci[oó]n del puesto)$/,
+    mesa: /^(mesa|n[uú]mero de mesa|mesa de votaci[oó]n)$/,
+  };
+  const norm = (t) => t.replace(/\u00a0/g, " ").replace(/[ \t]*:[ \t]*$/, "").trim().toLowerCase();
+  const tipo = (t) => Object.keys(ETQ).find((k) => ETQ[k].test(norm(t)));
+  const out = {};
+  const poner = (k, v) => { v = (v || "").replace(/\s+/g, " ").trim(); if (k && v && !out[k] && !tipo(v)) out[k] = v; };
+  const lineas = String(texto || "").replace(/\r/g, "").split("\n").map((l) => l.trim()).filter(Boolean);
+
+  for (let i = 0; i < lineas.length; i++) {
+    const l = lineas[i];
+    // Tabla: fila de encabezados con tabulaciones y la fila siguiente con valores
+    const celdas = l.split("\t").map((c) => c.trim()).filter(Boolean);
+    if (celdas.length > 1 && celdas.filter(tipo).length >= 2 && lineas[i + 1]) {
+      const vals = lineas[i + 1].split("\t").map((c) => c.trim());
+      celdas.forEach((c, j) => poner(tipo(c), vals[j]));
+      i++; continue;
+    }
+    // "Etiqueta<TAB>valor"
+    if (celdas.length === 2 && tipo(celdas[0])) { poner(tipo(celdas[0]), celdas[1]); continue; }
+    // Varias "Etiqueta: valor" en la misma línea separadas por tabulación
+    for (const c of celdas) {
+      const m = c.match(/^([^:]{3,40}):\s*(.+)$/);
+      if (m && tipo(m[1])) poner(tipo(m[1]), m[2]);
+    }
+    // Etiqueta sola en la línea y el valor en la siguiente
+    if (tipo(l) && lineas[i + 1] && !tipo(lineas[i + 1])) { poner(tipo(l), lineas[i + 1]); i++; continue; }
+    // "MESA 12" o "Mesa No. 12"
+    const mm = l.match(/^mesa(?:\s*(?:no\.?|n[°º]|#))?\s*:?\s*(\d{1,3})\b/i);
+    if (mm) poner("mesa", mm[1]);
+  }
+  if (out.mesa) { const n = out.mesa.match(/\d{1,3}/); out.mesa = n ? n[0] : ""; if (!out.mesa) delete out.mesa; }
+  for (const k of ["puesto", "municipio", "departamento"]) if (out[k]) out[k] = out[k].toUpperCase();
+  return out;
+}
+
+  // Conecta el botón "Pegar resultado" y la caja de texto de un formulario (prefijo r = registro, c = completar)
+  function montarPegado(pre) {
+    const caja = $(`#${pre}_txt`), aviso = $(`#${pre}_leido`);
+    const aplicar = (texto) => {
+      const d = leerRegistraduria(texto);
+      if (!d.puesto && !d.mesa) {
+        aviso.innerHTML = `<div class="note err">No reconocimos el puesto en ese texto. Copie todo el resultado de la Registraduría, o escriba el puesto y la mesa abajo.</div>`;
+        return;
+      }
+      if (d.puesto) $(`#${pre}_pue`).value = d.puesto;
+      if (d.mesa) $(`#${pre}_mesa`).value = d.mesa;
+      if (d.municipio) $(`#${pre}_mun`).value = d.municipio;
+      if (d.direccion) $(`#${pre}_dir`).value = d.direccion;
+      ["pue", "mesa", "mun", "dir"].forEach((c) => $(`#${pre}_${c}`).dispatchEvent(new Event("input")));
+      const falta = [!d.puesto && "el puesto", !d.mesa && "la mesa"].filter(Boolean);
+      aviso.innerHTML = `<div class="note ok">Listo: ${esc(d.puesto || "")}${d.mesa ? ", mesa " + esc(d.mesa) : ""}${d.municipio ? ", " + esc(d.municipio) : ""}.
+        ${falta.length ? "Escriba " + falta.join(" y ") + " a mano." : "Revise los datos y registre."}</div>`;
+    };
+    $(`#${pre}_pegar`).onclick = async () => {
+      try {
+        const t = await navigator.clipboard.readText();
+        if (t && t.trim()) { caja.value = t; aplicar(t); return; }
+        aviso.innerHTML = `<div class="note err">No hay nada copiado. En la Registraduría seleccione el resultado y cópielo.</div>`;
+      } catch {
+        aviso.innerHTML = `<div class="note">Mantenga presionado el recuadro de abajo y elija Pegar.</div>`;
+        caja.focus();
+      }
+    };
+    caja.addEventListener("input", () => { if (caja.value.trim().length > 10) aplicar(caja.value); });
   }
 
   function enlazarGestor() {
@@ -452,7 +540,8 @@
     $("#r_pend").onchange = () => $("#r_lugar").classList.toggle("hidden", $("#r_pend").checked);
 
     // Borrador: si el navegador recarga la página al volver de la Registraduría, no se pierde lo escrito
-    const campos = ["r_ced", "r_nom", "r_tel", "r_pue", "r_mesa", "r_mun"];
+    const campos = ["r_ced", "r_nom", "r_tel", "r_pue", "r_mesa", "r_mun", "r_dir"];
+    montarPegado("r");
     const guardar = () => { try { sessionStorage.setItem("borrador", JSON.stringify(Object.fromEntries(campos.map((c) => [c, $("#" + c).value])))); } catch {} };
     try {
       const b = JSON.parse(sessionStorage.getItem("borrador") || "null");
@@ -479,14 +568,14 @@
         esperandoRegreso = false;
         $("#r_pend").checked = false; $("#r_lugar").classList.remove("hidden");
         $("#r_lugar").classList.add("resaltar");
-        $("#r_pue").scrollIntoView({ block: "center" }); $("#r_pue").focus();
+        $("#r_pegar").scrollIntoView({ block: "center" }); $("#r_pegar").focus();
       }
     });
     $("#freg").onsubmit = async (e) => {
       e.preventDefault();
       const body = {
         cedula: $("#r_ced").value, nombre: $("#r_nom").value, telefono: $("#r_tel").value,
-        puesto: $("#r_pue").value, mesa: $("#r_mesa").value, municipio: $("#r_mun").value,
+        puesto: $("#r_pue").value, mesa: $("#r_mesa").value, municipio: $("#r_mun").value, direccion: $("#r_dir").value,
         pendiente: !$("#r_manual").classList.contains("hidden") && $("#r_pend").checked,
         autorizacion: $("#r_aut").checked,
       };
@@ -502,12 +591,13 @@
       cargarPanel();
     });
     if ($("#fcomp")) {
-      $("#fcomp").scrollIntoView({ block: "start" }); $("#c_pue").focus();
+      $("#fcomp").scrollIntoView({ block: "start" });
+      montarPegado("c");
       $("#c_cancel").onclick = () => { completar = null; cargarPanel(); };
       $("#fcomp").onsubmit = async (e) => {
         e.preventDefault();
         const d = await api("/api/votantes/puesto", { method: "POST",
-          body: { ref: completar.ref, puesto: $("#c_pue").value, mesa: $("#c_mesa").value, municipio: $("#c_mun").value } });
+          body: { ref: completar.ref, puesto: $("#c_pue").value, mesa: $("#c_mesa").value, municipio: $("#c_mun").value, direccion: $("#c_dir").value } });
         if (!d.ok) return ($("#c_msg").innerHTML = `<div class="note err">${esc(d.error)}</div>`);
         completar = null; flash = { texto: d.mensaje }; cargarPanel();
       };
